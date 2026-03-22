@@ -57,9 +57,7 @@ async function toReceiptFunctionError(error: unknown) {
           if (text.trim()) {
             return new Error(text.trim());
           }
-        } catch {
-          // Ignore body parsing failures and fall back below.
-        }
+        } catch {}
       }
     }
 
@@ -78,15 +76,12 @@ async function toReceiptFunctionError(error: unknown) {
 }
 
 async function invokeReceiptFunction(orderId: string, accessToken: string) {
-  return supabase.functions.invoke<SendOrderReceiptResponse>(
-    'send-order-receipt',
-    {
-      body: { orderId },
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
+  return supabase.functions.invoke<SendOrderReceiptResponse>('send-order-receipt', {
+    body: { orderId },
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 }
 
 export async function sendOrderReceipt(orderId: string) {
