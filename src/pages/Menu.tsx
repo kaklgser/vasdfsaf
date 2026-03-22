@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import type { Category, MenuItem } from '../types';
 import ProductCard from '../components/ProductCard';
@@ -9,6 +10,7 @@ import { CardSkeleton } from '../components/LoadingSkeleton';
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../components/Toast';
 import { playAddToCartSound } from '../lib/sounds';
+import { staggerContainer, staggerChild } from '../lib/animations';
 
 export default function MenuPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -84,29 +86,21 @@ export default function MenuPage() {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 -mb-1 scrollbar-hide">
-            <button
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 -mb-1 scrollbar-hide relative">
+            <CategoryPill
+              label="All"
+              slug="all"
+              active={activeCategory === 'all'}
               onClick={() => handleCategoryChange('all')}
-              className={`whitespace-nowrap px-4 py-2.5 rounded-lg text-[13px] font-bold transition-all ${
-                activeCategory === 'all'
-                  ? 'bg-brand-gold text-brand-bg'
-                  : 'bg-brand-surface text-brand-text-muted border border-brand-border hover:border-brand-border'
-              }`}
-            >
-              All
-            </button>
+            />
             {categories.map((cat) => (
-              <button
+              <CategoryPill
                 key={cat.id}
+                label={cat.name}
+                slug={cat.slug}
+                active={activeCategory === cat.slug}
                 onClick={() => handleCategoryChange(cat.slug)}
-                className={`whitespace-nowrap px-4 py-2.5 rounded-lg text-[13px] font-bold transition-all ${
-                  activeCategory === cat.slug
-                    ? 'bg-brand-gold text-brand-bg'
-                    : 'bg-brand-surface text-brand-text-muted border border-brand-border hover:border-brand-border'
-                }`}
-              >
-                {cat.name}
-              </button>
+              />
             ))}
           </div>
         </div>
@@ -115,8 +109,9 @@ export default function MenuPage() {
       <div className="px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
-            <button
+            <motion.button
               onClick={() => setVegOnly(!vegOnly)}
+              whileTap={{ scale: 0.93 }}
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[13px] font-bold transition-all ${
                 vegOnly ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-brand-surface text-brand-text-dim border border-brand-border'
               }`}
@@ -125,15 +120,16 @@ export default function MenuPage() {
                 <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
               </div>
               Veg
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               onClick={() => setEgglessOnly(!egglessOnly)}
+              whileTap={{ scale: 0.93 }}
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[13px] font-bold transition-all ${
                 egglessOnly ? 'bg-brand-gold/20 text-brand-gold border border-brand-gold/30' : 'bg-brand-surface text-brand-text-dim border border-brand-border'
               }`}
             >
               Eggless
-            </button>
+            </motion.button>
           </div>
           <div className="flex items-center gap-1.5">
             <SlidersHorizontal size={14} className="text-brand-text-dim" strokeWidth={2.5} />
@@ -154,34 +150,70 @@ export default function MenuPage() {
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => <CardSkeleton key={i} />)}
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="text-center py-16">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-16"
+          >
             <div className="w-16 h-16 bg-brand-surface rounded-2xl flex items-center justify-center mx-auto mb-3">
               <Search size={24} className="text-brand-text-dim" strokeWidth={2.5} />
             </div>
             <h3 className="text-[17px] font-bold text-white mb-1.5">No waffles found</h3>
             <p className="text-brand-text-dim text-[14px] font-medium">Try adjusting your filters or search terms</p>
-          </div>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+          <motion.div
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+            key={`${activeCategory}-${vegOnly}-${egglessOnly}-${sortBy}`}
+          >
             {filteredItems.map((item) => (
-              <ProductCard key={item.id} item={item} onAdd={setSelectedItem} />
+              <motion.div key={item.id} variants={staggerChild}>
+                <ProductCard item={item} onAdd={setSelectedItem} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
 
-      {selectedItem && (
-        <CustomizationModal
-          item={selectedItem}
-          onClose={() => setSelectedItem(null)}
-          onConfirm={(item, qty, customizations) => {
-            addItem(item, qty, customizations);
-            setSelectedItem(null);
-            playAddToCartSound();
-            showToast(`${item.name} added to cart!`);
-          }}
+      <AnimatePresence>
+        {selectedItem && (
+          <CustomizationModal
+            item={selectedItem}
+            onClose={() => setSelectedItem(null)}
+            onConfirm={(item, qty, customizations) => {
+              addItem(item, qty, customizations);
+              setSelectedItem(null);
+              playAddToCartSound();
+              showToast(`${item.name} added to cart!`);
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function CategoryPill({ label, active, onClick }: { label: string; slug: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`relative whitespace-nowrap px-4 py-2.5 rounded-lg text-[13px] font-bold transition-colors ${
+        active
+          ? 'text-brand-bg'
+          : 'bg-brand-surface text-brand-text-muted border border-brand-border hover:border-brand-border'
+      }`}
+    >
+      {active && (
+        <motion.div
+          layoutId="activeCategoryPill"
+          className="absolute inset-0 bg-brand-gold rounded-lg"
+          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
         />
       )}
-    </div>
+      <span className="relative z-10">{label}</span>
+    </button>
   );
 }

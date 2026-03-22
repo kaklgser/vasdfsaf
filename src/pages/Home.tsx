@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Truck, Clock, Sparkles, Flame } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { getOfferBadgeLabel, getOfferRewardLabel, getOfferRuleSummary } from '../lib/offers';
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../components/Toast';
 import ProductCard from '../components/ProductCard';
 import CustomizationModal from '../components/CustomizationModal';
+import ScrollReveal from '../components/ScrollReveal';
+import { staggerContainer, staggerChild } from '../lib/animations';
 import type { Category, MenuItem, Offer } from '../types';
 
 const fallbackOffers: Offer[] = [
@@ -130,38 +133,62 @@ export default function Home() {
       {offers.length > 0 && (
         <section className="px-4 pt-3 pb-1">
           <div className="relative overflow-hidden rounded-xl aspect-[2.2/1]">
-            <div
-              className="flex transition-transform duration-500 ease-out h-full"
-              style={{ transform: `translateX(-${bannerIdx * 100}%)` }}
-            >
-              {offers.map((offer) => (
-                <div key={offer.id} className="w-full flex-shrink-0 h-full relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-brand-surface via-brand-surface-light to-brand-gold/10 rounded-xl" />
-                  <div className="absolute inset-0 flex items-center px-5">
-                    <div className="flex-1">
-                      <span className="inline-block bg-brand-gold/20 text-brand-gold text-[12px] font-bold px-2.5 py-1 rounded-md mb-1.5 tracking-wide">
-                        {getOfferBadgeLabel(offer)}
-                      </span>
-                      <h3 className="text-white font-extrabold text-[18px] leading-tight mb-0.5">{offer.title}</h3>
-                      <p className="text-brand-text-muted text-[13px] font-medium mb-2 max-w-[200px] leading-snug">
-                        {offer.description || getOfferRuleSummary(offer)}
-                      </p>
-                      <span className="text-brand-gold font-black text-[22px] tracking-tight">
-                        {getOfferRewardLabel(offer)}
-                      </span>
-                    </div>
-                    <Link
-                      to="/menu"
-                      className="hidden sm:flex items-center gap-1.5 bg-brand-gold text-brand-bg font-bold text-[14px] px-5 py-2.5 rounded-lg hover:brightness-110 transition-all"
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div
+                key={bannerIdx}
+                initial={{ opacity: 0, x: 60 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -60 }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-brand-surface via-brand-surface-light to-brand-gold/10 rounded-xl" />
+                <div className="absolute inset-0 flex items-center px-5">
+                  <div className="flex-1">
+                    <motion.span
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1, duration: 0.35 }}
+                      className="inline-block bg-brand-gold/20 text-brand-gold text-[12px] font-bold px-2.5 py-1 rounded-md mb-1.5 tracking-wide"
                     >
-                      Order Now
-                    </Link>
+                      {getOfferBadgeLabel(offers[bannerIdx])}
+                    </motion.span>
+                    <motion.h3
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15, duration: 0.4 }}
+                      className="text-white font-extrabold text-[18px] leading-tight mb-0.5"
+                    >
+                      {offers[bannerIdx].title}
+                    </motion.h3>
+                    <motion.p
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2, duration: 0.4 }}
+                      className="text-brand-text-muted text-[13px] font-medium mb-2 max-w-[200px] leading-snug"
+                    >
+                      {offers[bannerIdx].description || getOfferRuleSummary(offers[bannerIdx])}
+                    </motion.p>
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.25, duration: 0.35 }}
+                      className="text-brand-gold font-black text-[22px] tracking-tight inline-block"
+                    >
+                      {getOfferRewardLabel(offers[bannerIdx])}
+                    </motion.span>
                   </div>
+                  <Link
+                    to="/menu"
+                    className="hidden sm:flex items-center gap-1.5 bg-brand-gold text-brand-bg font-bold text-[14px] px-5 py-2.5 rounded-lg hover:brightness-110 transition-all"
+                  >
+                    Order Now
+                  </Link>
                 </div>
-              ))}
-            </div>
+              </motion.div>
+            </AnimatePresence>
             {offers.length > 1 && (
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
                 {offers.map((_, i) => (
                   <button
                     key={i}
@@ -177,75 +204,94 @@ export default function Home() {
         </section>
       )}
 
-      <div className="px-4 py-2">
+      <motion.div
+        className="px-4 py-2"
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+      >
         <div className="flex items-center gap-3 text-[12px] font-semibold text-brand-text-dim">
           {[
             { icon: Truck, text: 'Free delivery over \u20B9299' },
             { icon: Clock, text: '10-min prep' },
             { icon: Sparkles, text: 'Fresh & Handcrafted' },
           ].map((item, i) => (
-            <div key={item.text} className="flex items-center gap-1.5 whitespace-nowrap">
+            <motion.div key={item.text} variants={staggerChild} className="flex items-center gap-1.5 whitespace-nowrap">
               {i > 0 && <span className="text-brand-gold-muted mr-1">|</span>}
               <item.icon size={13} className="text-brand-gold-muted flex-shrink-0" strokeWidth={2.2} />
               <span>{item.text}</span>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {categories.length > 0 && (
-        <section className="px-4 pt-3 pb-1">
-          <h2 className="text-[18px] font-bold text-white mb-3">What are you craving?</h2>
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
-            {categories.map((cat) => (
-              <Link
-                key={cat.id}
-                to={`/menu?category=${cat.slug}`}
-                className="flex flex-col items-center gap-1.5 flex-shrink-0 group"
-              >
-                <div className="w-[68px] h-[68px] rounded-full overflow-hidden border-2 border-brand-border group-hover:border-brand-gold/50 transition-all">
-                  <img
-                    src={cat.image_url}
-                    alt={cat.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <span className="text-[12px] font-bold text-brand-text-muted group-hover:text-brand-gold transition-colors text-center max-w-[72px] truncate">
-                  {cat.name}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
+        <ScrollReveal>
+          <section className="px-4 pt-3 pb-1">
+            <h2 className="text-[18px] font-bold text-white mb-3">What are you craving?</h2>
+            <motion.div
+              className="flex gap-3 overflow-x-auto scrollbar-hide pb-1"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+            >
+              {categories.map((cat) => (
+                <motion.div key={cat.id} variants={staggerChild}>
+                  <Link
+                    to={`/menu?category=${cat.slug}`}
+                    className="flex flex-col items-center gap-1.5 flex-shrink-0 group"
+                  >
+                    <div className="w-[68px] h-[68px] rounded-full overflow-hidden border-2 border-brand-border group-hover:border-brand-gold/50 transition-all">
+                      <img
+                        src={cat.image_url}
+                        alt={cat.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                    <span className="text-[12px] font-bold text-brand-text-muted group-hover:text-brand-gold transition-colors text-center max-w-[72px] truncate">
+                      {cat.name}
+                    </span>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+          </section>
+        </ScrollReveal>
       )}
 
       {bestSellers.length > 0 && (
-        <HorizontalRail
-          icon={<Flame size={18} className="text-orange-400" strokeWidth={2.5} />}
-          title="Best Sellers"
-          items={bestSellers}
-          onAdd={handleAdd}
-          linkTo="/menu"
-        />
+        <ScrollReveal>
+          <HorizontalRail
+            icon={<Flame size={18} className="text-orange-400" strokeWidth={2.5} />}
+            title="Best Sellers"
+            items={bestSellers}
+            onAdd={handleAdd}
+            linkTo="/menu"
+          />
+        </ScrollReveal>
       )}
 
-      {itemsByCategory.map((group) => (
-        <HorizontalRail
-          key={group.category.id}
-          title={group.category.name}
-          items={group.items}
-          onAdd={handleAdd}
-          linkTo={`/menu?category=${group.category.slug}`}
-        />
+      {itemsByCategory.map((group, idx) => (
+        <ScrollReveal key={group.category.id} delay={idx * 0.05}>
+          <HorizontalRail
+            title={group.category.name}
+            items={group.items}
+            onAdd={handleAdd}
+            linkTo={`/menu?category=${group.category.slug}`}
+          />
+        </ScrollReveal>
       ))}
 
-      {selectedItem && (
-        <CustomizationModal
-          item={selectedItem}
-          onClose={() => setSelectedItem(null)}
-          onConfirm={handleConfirmAdd}
-        />
-      )}
+      <AnimatePresence>
+        {selectedItem && (
+          <CustomizationModal
+            item={selectedItem}
+            onClose={() => setSelectedItem(null)}
+            onConfirm={handleConfirmAdd}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

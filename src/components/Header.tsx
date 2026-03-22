@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, User, LogOut, Package, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../contexts/AuthContext';
+import { dropdownVariants } from '../lib/animations';
 
 export default function Header() {
   const [profileOpen, setProfileOpen] = useState(false);
@@ -71,30 +73,39 @@ export default function Header() {
                   <ChevronDown size={14} className={`text-brand-text-dim transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
                 </button>
 
-                {profileOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 bg-brand-surface rounded-xl border border-brand-border shadow-elevated py-1.5 animate-slide-down z-50">
-                    <div className="px-4 py-3 border-b border-brand-border">
-                      <p className="font-bold text-[15px] text-white truncate">{displayName}</p>
-                      {displayEmail && <p className="text-[13px] font-medium text-brand-text-dim truncate mt-0.5">{displayEmail}</p>}
-                      {displayPhone && <p className="text-[12px] font-medium text-brand-text-dim truncate mt-0.5">Phone: {displayPhone}</p>}
-                    </div>
-                    <Link
-                      to="/my-orders"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-[14px] font-semibold text-brand-text-muted hover:text-white hover:bg-brand-surface-light/70 transition-colors"
+                <AnimatePresence>
+                  {profileOpen && (
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="absolute right-0 top-full mt-2 w-56 bg-brand-surface rounded-xl border border-brand-border shadow-elevated py-1.5 z-50"
+                      style={{ transformOrigin: 'top right' }}
                     >
-                      <Package size={16} strokeWidth={2.2} />
-                      My Orders
-                    </Link>
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-[14px] font-semibold text-brand-text-muted hover:text-white hover:bg-brand-surface-light/70 transition-colors"
-                    >
-                      <LogOut size={16} strokeWidth={2.2} />
-                      Sign Out
-                    </button>
-                  </div>
-                )}
+                      <div className="px-4 py-3 border-b border-brand-border">
+                        <p className="font-bold text-[15px] text-white truncate">{displayName}</p>
+                        {displayEmail && <p className="text-[13px] font-medium text-brand-text-dim truncate mt-0.5">{displayEmail}</p>}
+                        {displayPhone && <p className="text-[12px] font-medium text-brand-text-dim truncate mt-0.5">Phone: {displayPhone}</p>}
+                      </div>
+                      <Link
+                        to="/my-orders"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 text-[14px] font-semibold text-brand-text-muted hover:text-white hover:bg-brand-surface-light/70 transition-colors"
+                      >
+                        <Package size={16} strokeWidth={2.2} />
+                        My Orders
+                      </Link>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-[14px] font-semibold text-brand-text-muted hover:text-white hover:bg-brand-surface-light/70 transition-colors"
+                      >
+                        <LogOut size={16} strokeWidth={2.2} />
+                        Sign Out
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
               <Link

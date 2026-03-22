@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Tag, User, Pencil, Store, Wallet, CreditCard } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useSiteSettings } from '../hooks/useSiteSettings';
@@ -377,7 +378,12 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-brand-bg">
-      <div className="max-w-lg mx-auto px-4 py-6 pb-32 animate-fade-in">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-lg mx-auto px-4 py-6 pb-32"
+      >
         <div className="flex items-center justify-between mb-5">
           <Link to="/menu" className="inline-flex items-center gap-2 text-[13px] text-brand-text-dim hover:text-brand-gold transition-colors">
             <ArrowLeft size={15} />
@@ -394,9 +400,15 @@ export default function CartPage() {
         </h1>
 
         <div className="space-y-2.5 mb-6">
+          <AnimatePresence initial={false}>
           {items.map((item) => (
-            <div
+            <motion.div
               key={item.id}
+              layout
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -60, height: 0, marginBottom: 0, transition: { duration: 0.25, ease: 'easeIn' } }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="bg-brand-surface rounded-xl p-3.5 border border-brand-border flex gap-3"
             >
               <img
@@ -459,8 +471,9 @@ export default function CartPage() {
                   <span className="font-bold text-brand-gold tabular-nums text-[14px]">{'\u20B9'}{item.total_price.toFixed(0)}</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
+          </AnimatePresence>
 
           <Link
             to="/menu"
@@ -693,9 +706,12 @@ export default function CartPage() {
 
         <div className="cart-submit-bar">
           <div className="max-w-lg mx-auto">
-            <button
+            <motion.button
               onClick={handlePlaceOrder}
               disabled={submitting || !!(settings && !settings.site_is_open)}
+              whileTap={{ scale: 0.97 }}
+              animate={submitting ? { boxShadow: ['0 0 0 0 rgba(216,178,78,0)', '0 0 16px 4px rgba(216,178,78,0.2)', '0 0 0 0 rgba(216,178,78,0)'] } : {}}
+              transition={submitting ? { duration: 1.2, repeat: Infinity } : { duration: 0.1 }}
               className="btn-primary w-full text-center text-[15px] font-extrabold py-3.5 rounded-xl tracking-tight"
             >
               {!user
@@ -707,10 +723,10 @@ export default function CartPage() {
                 : isFreeOrder
                 ? 'Place Order -- FREE'
                 : <>Place Order -- {'\u20B9'}{total.toFixed(0)}</>}
-            </button>
+            </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {editingItem && (
         <CustomizationModal

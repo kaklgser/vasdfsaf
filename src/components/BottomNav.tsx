@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, UtensilsCrossed, Package, User } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useAuth } from '../contexts/AuthContext';
 
 const tabs = [
@@ -38,18 +39,35 @@ export default function BottomNav() {
             <Link
               key={tab.label}
               to={to}
-              className={`flex flex-col items-center justify-center gap-1 w-[72px] py-2 rounded-xl transition-all ${
+              className={`flex flex-col items-center justify-center gap-1 w-[72px] py-2 rounded-xl transition-colors ${
                 active
                   ? 'text-brand-gold'
                   : 'text-brand-text-dim hover:text-brand-text-muted'
               }`}
             >
-              <div className={`relative ${active ? '' : ''}`}>
-                <Icon size={24} strokeWidth={active ? 2.5 : 2} />
-                {active && (
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-brand-gold rounded-full" />
+              <motion.div
+                className="relative"
+                whileTap={{ scale: 0.85 }}
+                transition={{ duration: 0.1 }}
+              >
+                {active ? (
+                  <motion.div
+                    layoutId="bottomNavActive"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  >
+                    <Icon size={24} strokeWidth={2.5} />
+                  </motion.div>
+                ) : (
+                  <Icon size={24} strokeWidth={2} />
                 )}
-              </div>
+                {active && (
+                  <motion.div
+                    layoutId="bottomNavDot"
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-brand-gold rounded-full"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
+              </motion.div>
               <span className={`text-[12px] leading-none ${active ? 'font-bold' : 'font-semibold'}`}>
                 {tab.label === 'Profile' && user ? 'Profile' : tab.label}
               </span>

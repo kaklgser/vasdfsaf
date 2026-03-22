@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { CheckCircle, Clock, Copy, RotateCcw, Store, Truck, ChefHat, Users, Bell, Sparkles, ArrowRight, Star, Wallet } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { clearCheckoutSuccessOrder } from '../lib/checkoutSuccess';
 import { supabase } from '../lib/supabase';
 import { getPaymentMethodLabel, getReadyOrderLabel, getServiceModeLabel } from '../lib/orderLabels';
@@ -8,6 +9,7 @@ import type { Order, MenuItem } from '../types';
 import { useToast } from '../components/Toast';
 import { playOrderSound, playOrderCompleteSound, playPickupReadyAlert } from '../lib/sounds';
 import { useAuth } from '../contexts/AuthContext';
+import { staggerContainer, staggerChild } from '../lib/animations';
 
 export default function OrderSuccessPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -168,61 +170,92 @@ export default function OrderSuccessPage() {
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center section-padding py-12 bg-brand-bg">
-      <div className="max-w-md w-full text-center animate-fade-in">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-md w-full text-center"
+      >
 
+        <AnimatePresence mode="wait">
         {isReady && (
-          <PickupReadyBanner order={order} />
+          <motion.div key="ready" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+            <PickupReadyBanner order={order} />
+          </motion.div>
         )}
 
         {isPreparing && (
-          <>
-            <div className="w-20 h-20 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale-in">
+          <motion.div key="preparing" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="w-20 h-20 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-6"
+            >
               <ChefHat size={40} className="text-amber-400 animate-pulse" />
-            </div>
+            </motion.div>
             <h1 className="text-2xl font-extrabold tracking-tight text-white mb-2">Your Order is Being Prepared!</h1>
             <p className="text-brand-text-muted mb-8">
               Our chef is making your order fresh. {order.estimated_minutes ? `Please wait about ${order.estimated_minutes} minutes.` : ''}
             </p>
-          </>
+          </motion.div>
         )}
 
         {isPending && (
-          <>
-            <div className="w-20 h-20 bg-orange-500/10 border border-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale-in">
+          <motion.div key="pending" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="w-20 h-20 bg-orange-500/10 border border-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6"
+            >
               <Users size={40} className="text-orange-400" />
-            </div>
+            </motion.div>
             <h1 className="text-2xl font-extrabold tracking-tight text-white mb-2">Order Placed!</h1>
             <p className="text-brand-text-muted mb-8">Your order is in queue. Waiting for chef to accept.</p>
-          </>
+          </motion.div>
         )}
 
         {isDelivered && (
-          <EnjoyFoodCelebration isPickup={isPickup} />
+          <motion.div key="delivered" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+            <EnjoyFoodCelebration isPickup={isPickup} />
+          </motion.div>
         )}
 
         {isConfirmed && !isPreparing && !isReady && !isDelivered && (
-          <>
-            <div className="w-20 h-20 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale-in">
+          <motion.div key="confirmed" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="w-20 h-20 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6"
+            >
               <CheckCircle size={40} className="text-emerald-400" />
-            </div>
+            </motion.div>
             <h1 className="text-2xl font-extrabold tracking-tight text-white mb-2">Order Confirmed!</h1>
             <p className="text-brand-text-muted mb-8">
               {isPickup
                 ? 'Your waffles are being prepared. We will notify you when ready.'
                 : 'Your waffles are being prepared and will be delivered soon.'}
             </p>
-          </>
+          </motion.div>
         )}
 
         {isExpired && (
-          <>
-            <div className="w-20 h-20 bg-orange-500/10 border border-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-scale-in">
+          <motion.div key="expired" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="w-20 h-20 bg-orange-500/10 border border-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6"
+            >
               <Clock size={40} className="text-orange-400" />
-            </div>
+            </motion.div>
             <h1 className="text-2xl font-extrabold tracking-tight text-white mb-2">Order Expired</h1>
             <p className="text-brand-text-muted mb-8">The restaurant could not confirm in time</p>
-          </>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         <div className="rounded-2xl border p-6 mb-6 animate-scale-in bg-brand-surface border-brand-border">
           {isPickup && !isExpired && (
@@ -360,7 +393,7 @@ export default function OrderSuccessPage() {
             {isDelivered ? 'Order More' : 'Back to Menu'}
           </Link>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -453,7 +486,12 @@ function EnjoyFoodCelebration({ isPickup }: { isPickup: boolean }) {
 
 function SpecialsSuggestions({ items, onViewMenu }: { items: MenuItem[]; onViewMenu: () => void }) {
   return (
-    <div className="rounded-2xl border border-brand-gold/15 bg-gradient-to-b from-brand-gold/[0.04] to-transparent p-5 mb-6 text-left animate-fade-in">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+      className="rounded-2xl border border-brand-gold/15 bg-gradient-to-b from-brand-gold/[0.04] to-transparent p-5 mb-6 text-left"
+    >
       <div className="flex items-center gap-2 mb-4">
         <div className="w-8 h-8 bg-brand-gold/10 rounded-lg flex items-center justify-center">
           <Sparkles size={16} className="text-brand-gold" />
@@ -464,27 +502,33 @@ function SpecialsSuggestions({ items, onViewMenu }: { items: MenuItem[]; onViewM
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2.5 mb-4">
+      <motion.div
+        className="grid grid-cols-3 gap-2.5 mb-4"
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+      >
         {items.slice(0, 3).map((item) => (
-          <Link
-            key={item.id}
-            to="/menu"
-            className="group rounded-xl overflow-hidden border border-brand-border bg-brand-surface hover:border-brand-gold/30 transition-all"
-          >
-            <div className="aspect-square overflow-hidden">
-              <img
-                src={item.image_url}
-                alt={item.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-            </div>
-            <div className="p-2">
-              <p className="text-[11px] font-bold text-white truncate leading-tight">{item.name}</p>
-              <p className="text-[12px] font-extrabold text-brand-gold mt-0.5">{'\u20B9'}{item.price}</p>
-            </div>
-          </Link>
+          <motion.div key={item.id} variants={staggerChild}>
+            <Link
+              to="/menu"
+              className="group rounded-xl overflow-hidden border border-brand-border bg-brand-surface hover:border-brand-gold/30 transition-all block"
+            >
+              <div className="aspect-square overflow-hidden">
+                <img
+                  src={item.image_url}
+                  alt={item.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+              </div>
+              <div className="p-2">
+                <p className="text-[11px] font-bold text-white truncate leading-tight">{item.name}</p>
+                <p className="text-[12px] font-extrabold text-brand-gold mt-0.5">{'\u20B9'}{item.price}</p>
+              </div>
+            </Link>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {items.length > 3 && (
         <div className="grid grid-cols-1 gap-2 mb-4">
@@ -516,7 +560,7 @@ function SpecialsSuggestions({ items, onViewMenu }: { items: MenuItem[]; onViewM
         View Full Menu
         <ArrowRight size={14} />
       </button>
-    </div>
+    </motion.div>
   );
 }
 

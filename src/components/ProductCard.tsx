@@ -1,4 +1,5 @@
 import { Clock, Plus, Minus } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import type { MenuItem } from '../types';
 import { useCart } from '../contexts/CartContext';
 
@@ -33,7 +34,12 @@ export default function ProductCard({ item, onAdd }: ProductCardProps) {
   }
 
   return (
-    <div className="card group">
+    <motion.div
+      className="card group"
+      whileHover={{ y: -5, boxShadow: '0 10px 26px rgba(8,12,7,0.44), 0 0 1px rgba(216,178,78,0.12)' }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+    >
       <div className="relative overflow-hidden aspect-square">
         <img
           src={item.image_url}
@@ -72,35 +78,63 @@ export default function ProductCard({ item, onAdd }: ProductCardProps) {
             {'\u20B9'}{item.price}
           </span>
 
-          {totalQty > 0 ? (
-            <div className="flex items-center gap-0 border-2 border-brand-gold rounded-lg overflow-hidden">
-              <button
-                onClick={handleDecrement}
-                className="w-8 h-8 flex items-center justify-center text-brand-gold hover:bg-brand-gold/10 transition-colors"
+          <AnimatePresence mode="wait" initial={false}>
+            {totalQty > 0 ? (
+              <motion.div
+                key="stepper"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-center gap-0 border-2 border-brand-gold rounded-lg overflow-hidden"
               >
-                <Minus size={16} strokeWidth={2.5} />
-              </button>
-              <span className="w-7 text-center text-[14px] font-extrabold text-brand-gold">{totalQty}</span>
-              <button
-                onClick={handleIncrement}
-                className="w-8 h-8 flex items-center justify-center text-brand-gold hover:bg-brand-gold/10 transition-colors"
+                <motion.button
+                  onClick={handleDecrement}
+                  whileTap={{ scale: 0.85 }}
+                  className="w-8 h-8 flex items-center justify-center text-brand-gold hover:bg-brand-gold/10 transition-colors"
+                >
+                  <Minus size={16} strokeWidth={2.5} />
+                </motion.button>
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <motion.span
+                    key={totalQty}
+                    initial={{ y: -10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: 10, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="w-7 text-center text-[14px] font-extrabold text-brand-gold"
+                  >
+                    {totalQty}
+                  </motion.span>
+                </AnimatePresence>
+                <motion.button
+                  onClick={handleIncrement}
+                  whileTap={{ scale: 0.85 }}
+                  className="w-8 h-8 flex items-center justify-center text-brand-gold hover:bg-brand-gold/10 transition-colors"
+                >
+                  <Plus size={16} strokeWidth={2.5} />
+                </motion.button>
+              </motion.div>
+            ) : (
+              <motion.button
+                key="add"
+                onClick={() => onAdd(item)}
+                disabled={!item.is_available}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                whileTap={{ scale: 0.9 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="border-2 border-brand-gold text-brand-gold text-[13px] font-extrabold px-4 py-1.5 rounded-lg
+                           hover:bg-brand-gold hover:text-brand-bg transition-all
+                           disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                <Plus size={16} strokeWidth={2.5} />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => onAdd(item)}
-              disabled={!item.is_available}
-              className="border-2 border-brand-gold text-brand-gold text-[13px] font-extrabold px-4 py-1.5 rounded-lg
-                         hover:bg-brand-gold hover:text-brand-bg active:scale-[0.95] transition-all
-                         disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              ADD
-            </button>
-          )}
+                ADD
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
