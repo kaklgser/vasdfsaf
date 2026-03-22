@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Tag, User, Pencil, Store, Wallet, CreditCard } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Tag, User, Pencil, Store, Wallet, CreditCard, Sparkles, Mail, Shield, CheckCircle2 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useSiteSettings } from '../hooks/useSiteSettings';
@@ -212,7 +212,7 @@ export default function CartPage() {
             app_order_id: razorpayOrder.appOrderId,
           },
           theme: {
-            color: '#D8B24E',
+            color: '#c8a03c',
           },
           retry: {
             enabled: true,
@@ -354,141 +354,225 @@ export default function CartPage() {
     showToast('Item updated!');
   }
 
+  // Empty Cart States
   if (items.length === 0) {
     if (pendingSuccessOrderId) {
       return (
-        <div className="min-h-[60vh] flex flex-col items-center justify-center section-padding bg-brand-bg">
-          <div className="w-24 h-24 bg-brand-surface rounded-full flex items-center justify-center mb-6">
+        <div className="min-h-[60vh] flex flex-col items-center justify-center section-padding bg-brand-bg animate-fade-in">
+          <div className="w-24 h-24 bg-gradient-to-br from-brand-gold/20 to-brand-gold/5 
+                          rounded-full flex items-center justify-center mb-6
+                          border border-brand-gold/30 animate-pulse">
             <ShoppingBag size={40} className="text-brand-gold" />
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-white mb-2">Redirecting to your order...</h2>
-          <p className="text-brand-text-muted text-[15px]">We are opening your order confirmation page.</p>
+          <h2 className="text-2xl font-bold tracking-tight text-white mb-2">
+            Redirecting to your order...
+          </h2>
+          <p className="text-brand-text-muted text-[15px]">
+            We are opening your order confirmation page.
+          </p>
         </div>
       );
     }
 
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center section-padding bg-brand-bg">
-        <div className="w-24 h-24 bg-brand-surface rounded-full flex items-center justify-center mb-6">
-          <ShoppingBag size={40} className="text-brand-text-dim" />
+      <div className="min-h-[60vh] flex flex-col items-center justify-center section-padding bg-brand-bg animate-fade-in">
+        <div className="w-28 h-28 bg-brand-surface rounded-3xl 
+                        flex items-center justify-center mb-6
+                        border border-brand-border">
+          <ShoppingBag size={48} className="text-brand-text-dim" />
         </div>
-        <h2 className="text-2xl font-bold tracking-tight text-white mb-2">Your cart is empty</h2>
-        <p className="text-brand-text-muted text-[15px]">Add some delicious waffles to get started</p>
-        <Link to="/menu" className="btn-primary mt-6">Browse Menu</Link>
+        <h2 className="text-2xl font-bold tracking-tight text-white mb-2">
+          Your cart is empty
+        </h2>
+        <p className="text-brand-text-muted text-[15px] mb-6">
+          Add some delicious waffles to get started
+        </p>
+        <Link to="/menu" className="btn-primary">
+          Browse Menu
+        </Link>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-brand-bg">
-      <div className="max-w-lg mx-auto px-4 py-6 pb-32 animate-fade-in">
-        <div className="flex items-center justify-between mb-5">
-          <Link to="/menu" className="inline-flex items-center gap-2 text-[13px] text-brand-text-dim hover:text-brand-gold transition-colors">
-            <ArrowLeft size={15} />
-            Menu
+      <div className="max-w-lg mx-auto px-4 py-6 pb-36 animate-fade-in">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <Link 
+            to="/menu" 
+            className="inline-flex items-center gap-2 text-[13px] font-medium
+                       text-brand-text-dim hover:text-brand-gold 
+                       transition-colors duration-200 group"
+          >
+            <ArrowLeft 
+              size={16} 
+              className="group-hover:-translate-x-1 transition-transform duration-200" 
+            />
+            Back to Menu
           </Link>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold bg-brand-gold/10 text-brand-gold border border-brand-gold/20">
-            <Store size={12} strokeWidth={2.5} />
-            {serviceModeLabel} Order
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full 
+                          text-[12px] font-bold 
+                          bg-brand-gold/10 text-brand-gold 
+                          border border-brand-gold/25">
+            <Store size={14} strokeWidth={2.5} />
+            {serviceModeLabel}
           </div>
         </div>
 
-        <h1 className="text-xl font-extrabold tracking-tight text-white mb-5">
-          Cart <span className="text-brand-text-dim font-semibold text-base tabular-nums">({itemCount})</span>
+        {/* Title */}
+        <h1 className="text-[26px] font-extrabold tracking-tight text-white mb-6">
+          Your Order 
+          <span className="text-brand-text-dim font-semibold text-[18px] ml-2 tabular-nums">
+            ({itemCount})
+          </span>
         </h1>
 
-        <div className="space-y-2.5 mb-6">
-          {items.map((item) => (
+        {/* Cart Items */}
+        <div className="space-y-3 mb-6">
+          {items.map((item, index) => (
             <div
               key={item.id}
-              className="bg-brand-surface rounded-xl p-3.5 border border-brand-border flex gap-3"
+              className="bg-brand-surface/80 backdrop-blur-sm rounded-2xl p-4 
+                         border border-brand-border 
+                         hover:border-brand-gold/20
+                         transition-all duration-300
+                         animate-fade-in-up"
+              style={{ animationDelay: `${index * 0.05}s` }}
             >
-              <img
-                src={item.menu_item.image_url}
-                alt={item.menu_item.name}
-                className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-bold text-white text-[14px] leading-snug">{item.menu_item.name}</h3>
-                  <button
-                    onClick={() => removeItem(item.id)}
-                    className="p-1 hover:bg-red-500/10 rounded-lg text-brand-text-dim hover:text-red-400 transition-colors flex-shrink-0"
-                  >
-                    <Trash2 size={14} strokeWidth={2.2} />
-                  </button>
+              <div className="flex gap-4">
+                {/* Image */}
+                <div className="relative">
+                  <img
+                    src={item.menu_item.image_url}
+                    alt={item.menu_item.name}
+                    className="w-20 h-20 rounded-xl object-cover flex-shrink-0"
+                  />
                 </div>
+                
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-bold text-white text-[15px] leading-snug">
+                      {item.menu_item.name}
+                    </h3>
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="p-2 hover:bg-red-500/10 rounded-xl 
+                                 text-brand-text-dim hover:text-red-400 
+                                 transition-all duration-200 flex-shrink-0
+                                 group"
+                    >
+                      <Trash2 
+                        size={16} 
+                        strokeWidth={2.2} 
+                        className="group-hover:scale-110 transition-transform"
+                      />
+                    </button>
+                  </div>
 
-                {item.customizations.length > 0 && (
-                  <div className="mt-1 flex items-start gap-1.5">
-                    <div className="flex-1 min-w-0">
-                      <CartCustomizations customizations={item.customizations} />
+                  {/* Customizations */}
+                  {item.customizations.length > 0 && (
+                    <div className="mt-1.5 flex items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <CartCustomizations customizations={item.customizations} />
+                      </div>
+                      <button
+                        onClick={() => setEditingItem({ cartItemId: item.id, menuItem: item.menu_item })}
+                        className="flex items-center gap-1 text-[11px] font-bold 
+                                   text-brand-gold hover:text-brand-gold-soft 
+                                   transition-colors flex-shrink-0"
+                      >
+                        <Pencil size={11} />
+                        Edit
+                      </button>
                     </div>
+                  )}
+
+                  {item.customizations.length === 0 && (
                     <button
                       onClick={() => setEditingItem({ cartItemId: item.id, menuItem: item.menu_item })}
-                      className="flex items-center gap-1 text-[11px] font-bold text-brand-gold hover:text-brand-gold-soft transition-colors flex-shrink-0 mt-0.5"
-                    >
-                      <Pencil size={10} />
-                      Edit
-                    </button>
-                  </div>
-                )}
-
-                {item.customizations.length === 0 && (
-                  <button
-                    onClick={() => setEditingItem({ cartItemId: item.id, menuItem: item.menu_item })}
-                    className="flex items-center gap-1 text-[11px] font-bold text-brand-gold hover:text-brand-gold-soft transition-colors mt-1"
-                  >
-                    <Plus size={10} />
-                    Add toppings
-                  </button>
-                )}
-
-                <div className="flex items-center justify-between mt-2">
-                  <div className="flex items-center border border-brand-gold/30 rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="w-7 h-7 flex items-center justify-center text-brand-gold hover:bg-brand-gold/10 transition-colors"
-                    >
-                      <Minus size={12} />
-                    </button>
-                    <span className="w-6 text-center text-[12px] font-bold tabular-nums text-brand-gold">{item.quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="w-7 h-7 flex items-center justify-center text-brand-gold hover:bg-brand-gold/10 transition-colors"
+                      className="flex items-center gap-1.5 text-[12px] font-bold 
+                                 text-brand-gold hover:text-brand-gold-soft 
+                                 transition-colors mt-1.5"
                     >
                       <Plus size={12} />
+                      Add toppings
                     </button>
+                  )}
+
+                  {/* Quantity & Price */}
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex items-center border-2 border-brand-gold/30 
+                                    rounded-xl overflow-hidden">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        className="w-9 h-9 flex items-center justify-center 
+                                   text-brand-gold hover:bg-brand-gold/10 
+                                   transition-colors"
+                      >
+                        <Minus size={14} strokeWidth={2.5} />
+                      </button>
+                      <span className="w-8 text-center text-[14px] font-bold 
+                                       tabular-nums text-brand-gold">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="w-9 h-9 flex items-center justify-center 
+                                   text-brand-gold hover:bg-brand-gold/10 
+                                   transition-colors"
+                      >
+                        <Plus size={14} strokeWidth={2.5} />
+                      </button>
+                    </div>
+                    <span className="font-bold text-brand-gold tabular-nums text-[16px]">
+                      {'\u20B9'}{item.total_price.toFixed(0)}
+                    </span>
                   </div>
-                  <span className="font-bold text-brand-gold tabular-nums text-[14px]">{'\u20B9'}{item.total_price.toFixed(0)}</span>
                 </div>
               </div>
             </div>
           ))}
 
+          {/* Add More Items */}
           <Link
             to="/menu"
-            className="flex items-center justify-center gap-1.5 py-2.5 text-[13px] font-bold text-brand-gold hover:bg-brand-gold/5 rounded-xl transition-colors"
+            className="flex items-center justify-center gap-2 py-3.5 
+                       text-[14px] font-bold text-brand-gold 
+                       bg-brand-gold/5 hover:bg-brand-gold/10 
+                       rounded-2xl border border-brand-gold/20
+                       transition-all duration-300 group"
           >
-            <Plus size={14} strokeWidth={2.5} />
+            <Plus 
+              size={16} 
+              strokeWidth={2.5} 
+              className="group-hover:rotate-90 transition-transform duration-300"
+            />
             Add more items
           </Link>
         </div>
 
+        {/* Sign In Prompt */}
         {!user && (
-          <div className="bg-brand-gold/5 rounded-xl p-4 border border-brand-gold/20 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-brand-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
-                <User size={18} className="text-brand-gold" />
+          <div className="bg-gradient-to-r from-brand-gold/10 to-brand-gold/5 
+                          rounded-2xl p-5 border border-brand-gold/25 mb-5
+                          animate-fade-in-up">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-brand-gold/15 rounded-xl 
+                              flex items-center justify-center flex-shrink-0">
+                <User size={22} className="text-brand-gold" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-white text-[14px]">Sign in to order</h3>
-                <p className="text-[12px] text-brand-text-dim">Track orders and save your details</p>
+                <h3 className="font-bold text-white text-[15px]">Sign in to continue</h3>
+                <p className="text-[13px] text-brand-text-dim mt-0.5">
+                  Track orders and save your details
+                </p>
               </div>
               <Link
                 to="/auth"
                 state={{ from: '/cart' }}
-                className="btn-primary text-[13px] py-2 px-4"
+                className="btn-primary text-[13px] py-2.5 px-5"
               >
                 Sign In
               </Link>
@@ -496,8 +580,15 @@ export default function CartPage() {
           </div>
         )}
 
+        {/* Customer Details */}
         {user && (
-          <div className="bg-brand-surface rounded-xl p-4 border border-brand-border mb-4">
+          <div className="bg-brand-surface/80 backdrop-blur-sm rounded-2xl p-5 
+                          border border-brand-border mb-5 animate-fade-in-up"
+               style={{ animationDelay: '0.1s' }}>
+            <h3 className="font-bold text-white text-[14px] mb-4 flex items-center gap-2">
+              <User size={16} className="text-brand-gold" />
+              Your Details
+            </h3>
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="text"
@@ -517,200 +608,356 @@ export default function CartPage() {
           </div>
         )}
 
-        <div className="mb-4">
-          <h3 className="font-bold text-white text-[14px] mb-3">How would you like this order?</h3>
-          <div className="grid grid-cols-2 gap-2.5">
+        {/* Service Mode Selection */}
+        <div className="mb-5 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+          <h3 className="font-bold text-white text-[14px] mb-4 flex items-center gap-2">
+            <Store size={16} className="text-brand-gold" />
+            How would you like this order?
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => setPickupOption('dine_in')}
-              className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
+              className={`relative flex flex-col items-center gap-3 p-5 
+                          rounded-2xl border-2 transition-all duration-300 text-center
+                          group ${
                 pickupOption === 'dine_in'
-                  ? 'border-brand-gold bg-brand-gold/10'
-                  : 'border-brand-border bg-brand-surface hover:border-brand-border'
+                  ? 'border-brand-gold bg-brand-gold/10 shadow-glow-gold-soft'
+                  : 'border-brand-border bg-brand-surface/60 hover:border-brand-gold/30'
               }`}
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                pickupOption === 'dine_in' ? 'bg-brand-gold/20' : 'bg-brand-surface-light'
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center 
+                              transition-all duration-300 ${
+                pickupOption === 'dine_in' 
+                  ? 'bg-brand-gold/20' 
+                  : 'bg-brand-surface-light group-hover:bg-brand-gold/10'
               }`}>
-                <Store size={20} className={pickupOption === 'dine_in' ? 'text-brand-gold' : 'text-brand-text-dim'} />
+                <Store size={22} className={`transition-colors ${
+                  pickupOption === 'dine_in' ? 'text-brand-gold' : 'text-brand-text-dim'
+                }`} />
               </div>
               <div>
-                <span className={`text-[14px] font-bold block ${pickupOption === 'dine_in' ? 'text-white' : 'text-brand-text-muted'}`}>Dine In</span>
-                <span className="text-[11px] text-brand-text-dim">Enjoy it at the shop</span>
+                <span className={`text-[15px] font-bold block transition-colors ${
+                  pickupOption === 'dine_in' ? 'text-white' : 'text-brand-text-muted'
+                }`}>
+                  Dine In
+                </span>
+                <span className="text-[12px] text-brand-text-dim">
+                  Enjoy at the shop
+                </span>
               </div>
+              {pickupOption === 'dine_in' && (
+                <CheckCircle2 
+                  size={16} 
+                  className="absolute top-3 right-3 text-brand-gold animate-scale-in" 
+                />
+              )}
             </button>
             <button
               onClick={() => setPickupOption('takeaway')}
-              className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
+              className={`relative flex flex-col items-center gap-3 p-5 
+                          rounded-2xl border-2 transition-all duration-300 text-center
+                          group ${
                 pickupOption === 'takeaway'
-                  ? 'border-brand-gold bg-brand-gold/10'
-                  : 'border-brand-border bg-brand-surface hover:border-brand-border'
+                  ? 'border-brand-gold bg-brand-gold/10 shadow-glow-gold-soft'
+                  : 'border-brand-border bg-brand-surface/60 hover:border-brand-gold/30'
               }`}
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                pickupOption === 'takeaway' ? 'bg-brand-gold/20' : 'bg-brand-surface-light'
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center 
+                              transition-all duration-300 ${
+                pickupOption === 'takeaway' 
+                  ? 'bg-brand-gold/20' 
+                  : 'bg-brand-surface-light group-hover:bg-brand-gold/10'
               }`}>
-                <ShoppingBag size={20} className={pickupOption === 'takeaway' ? 'text-brand-gold' : 'text-brand-text-dim'} />
+                <ShoppingBag size={22} className={`transition-colors ${
+                  pickupOption === 'takeaway' ? 'text-brand-gold' : 'text-brand-text-dim'
+                }`} />
               </div>
               <div>
-                <span className={`text-[14px] font-bold block ${pickupOption === 'takeaway' ? 'text-white' : 'text-brand-text-muted'}`}>Takeaway</span>
-                <span className="text-[11px] text-brand-text-dim">Pack it to go</span>
+                <span className={`text-[15px] font-bold block transition-colors ${
+                  pickupOption === 'takeaway' ? 'text-white' : 'text-brand-text-muted'
+                }`}>
+                  Takeaway
+                </span>
+                <span className="text-[12px] text-brand-text-dim">
+                  Pack it to go
+                </span>
               </div>
+              {pickupOption === 'takeaway' && (
+                <CheckCircle2 
+                  size={16} 
+                  className="absolute top-3 right-3 text-brand-gold animate-scale-in" 
+                />
+              )}
             </button>
           </div>
         </div>
 
-        <div className="mb-4">
-          <h3 className="font-bold text-white text-[14px] mb-3">
-            {isFreeOrder ? 'Payment covered by offer' : 'How would you like to settle payment?'}
+        {/* Payment Method Selection */}
+        <div className="mb-5 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <h3 className="font-bold text-white text-[14px] mb-4 flex items-center gap-2">
+            <Wallet size={16} className="text-brand-gold" />
+            {isFreeOrder ? 'Payment covered by offer' : 'Payment Method'}
           </h3>
           {isFreeOrder ? (
-            <div className="rounded-xl border-2 border-emerald-500/30 bg-emerald-500/10 p-4 text-center">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto bg-emerald-500/20 mb-2">
-                <Tag size={20} className="text-emerald-400" />
+            <div className="rounded-2xl border-2 border-emerald-500/30 
+                            bg-emerald-500/10 p-5 text-center">
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center 
+                              mx-auto bg-emerald-500/20 mb-3">
+                <Sparkles size={24} className="text-emerald-400" />
               </div>
-              <div>
-                <span className="text-[14px] font-bold block text-white">Free Order</span>
-                <span className="text-[11px] text-emerald-300">
-                  Coupon covered the full amount. No payment is required.
-                </span>
-              </div>
+              <span className="text-[16px] font-bold block text-white">
+                Free Order
+              </span>
+              <span className="text-[13px] text-emerald-300 mt-1 block">
+                Coupon covered the full amount. No payment required.
+              </span>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => setPaymentMethod('card')}
-                className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
+                className={`relative flex flex-col items-center gap-3 p-5 
+                            rounded-2xl border-2 transition-all duration-300 text-center
+                            group ${
                   paymentMethod === 'card'
-                    ? 'border-brand-gold bg-brand-gold/10'
-                    : 'border-brand-border bg-brand-surface hover:border-brand-border'
+                    ? 'border-brand-gold bg-brand-gold/10 shadow-glow-gold-soft'
+                    : 'border-brand-border bg-brand-surface/60 hover:border-brand-gold/30'
                 }`}
               >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  paymentMethod === 'card' ? 'bg-brand-gold/20' : 'bg-brand-surface-light'
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center 
+                                transition-all duration-300 ${
+                  paymentMethod === 'card' 
+                    ? 'bg-brand-gold/20' 
+                    : 'bg-brand-surface-light group-hover:bg-brand-gold/10'
                 }`}>
-                  <CreditCard size={20} className={paymentMethod === 'card' ? 'text-brand-gold' : 'text-brand-text-dim'} />
+                  <CreditCard size={22} className={`transition-colors ${
+                    paymentMethod === 'card' ? 'text-brand-gold' : 'text-brand-text-dim'
+                  }`} />
                 </div>
                 <div>
-                  <span className={`text-[14px] font-bold block ${paymentMethod === 'card' ? 'text-white' : 'text-brand-text-muted'}`}>Pay Online</span>
-                  <span className="text-[11px] text-brand-text-dim">
-                    UPI, cards, and more with Razorpay
+                  <span className={`text-[15px] font-bold block transition-colors ${
+                    paymentMethod === 'card' ? 'text-white' : 'text-brand-text-muted'
+                  }`}>
+                    Pay Online
+                  </span>
+                  <span className="text-[12px] text-brand-text-dim">
+                    UPI, cards & more
                   </span>
                 </div>
+                {paymentMethod === 'card' && (
+                  <CheckCircle2 
+                    size={16} 
+                    className="absolute top-3 right-3 text-brand-gold animate-scale-in" 
+                  />
+                )}
               </button>
               <button
                 onClick={() => setPaymentMethod('cod')}
-                className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
+                className={`relative flex flex-col items-center gap-3 p-5 
+                            rounded-2xl border-2 transition-all duration-300 text-center
+                            group ${
                   paymentMethod === 'cod'
-                    ? 'border-brand-gold bg-brand-gold/10'
-                    : 'border-brand-border bg-brand-surface hover:border-brand-border'
+                    ? 'border-brand-gold bg-brand-gold/10 shadow-glow-gold-soft'
+                    : 'border-brand-border bg-brand-surface/60 hover:border-brand-gold/30'
                 }`}
               >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  paymentMethod === 'cod' ? 'bg-brand-gold/20' : 'bg-brand-surface-light'
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center 
+                                transition-all duration-300 ${
+                  paymentMethod === 'cod' 
+                    ? 'bg-brand-gold/20' 
+                    : 'bg-brand-surface-light group-hover:bg-brand-gold/10'
                 }`}>
-                  <Wallet size={20} className={paymentMethod === 'cod' ? 'text-brand-gold' : 'text-brand-text-dim'} />
+                  <Wallet size={22} className={`transition-colors ${
+                    paymentMethod === 'cod' ? 'text-brand-gold' : 'text-brand-text-dim'
+                  }`} />
                 </div>
                 <div>
-                  <span className={`text-[14px] font-bold block ${paymentMethod === 'cod' ? 'text-white' : 'text-brand-text-muted'}`}>Pay at Counter</span>
-                  <span className="text-[11px] text-brand-text-dim">
-                    {pickupOption === 'dine_in' ? 'Cash / UPI while dining' : 'Cash / UPI at collection'}
+                  <span className={`text-[15px] font-bold block transition-colors ${
+                    paymentMethod === 'cod' ? 'text-white' : 'text-brand-text-muted'
+                  }`}>
+                    Pay at Counter
+                  </span>
+                  <span className="text-[12px] text-brand-text-dim">
+                    Cash / UPI
                   </span>
                 </div>
+                {paymentMethod === 'cod' && (
+                  <CheckCircle2 
+                    size={16} 
+                    className="absolute top-3 right-3 text-brand-gold animate-scale-in" 
+                  />
+                )}
               </button>
             </div>
           )}
         </div>
 
-        <div className="bg-brand-surface rounded-xl p-4 border border-brand-border mb-4">
+        {/* Coupon Section */}
+        <div className="bg-brand-surface/80 backdrop-blur-sm rounded-2xl p-5 
+                        border border-brand-border mb-5 animate-fade-in-up"
+             style={{ animationDelay: '0.25s' }}>
+          <h3 className="font-bold text-white text-[14px] mb-4 flex items-center gap-2">
+            <Tag size={16} className="text-brand-gold" />
+            Have a coupon?
+          </h3>
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-text-dim" />
+              <Tag size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text-dim" />
               <input
                 type="text"
-                placeholder="Coupon code"
+                placeholder="Enter coupon code"
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                className="input-field pl-9 text-[13px]"
+                className="input-field pl-10 text-[14px] uppercase"
               />
             </div>
-            <button onClick={applyCoupon} className="btn-outline px-4 py-2 text-[13px] font-semibold rounded-lg">Apply</button>
+            <button 
+              onClick={applyCoupon} 
+              className="btn-outline px-5 py-3 text-[13px] font-bold rounded-xl"
+            >
+              Apply
+            </button>
           </div>
-          {couponError && <p className="text-red-400 text-[12px] mt-2">{couponError}</p>}
+          {couponError && (
+            <p className="text-red-400 text-[12px] mt-3 font-medium">
+              {couponError}
+            </p>
+          )}
           {appliedOffer && (
-            <div className="mt-2.5 bg-emerald-500/10 text-emerald-400 text-[12px] px-3 py-2 rounded-lg flex items-center justify-between">
-              <span className="font-semibold">{appliedOffer.title} applied! {getOfferRuleSummary(appliedOffer)}</span>
-              <button onClick={() => { setAppliedOffer(null); setCouponCode(''); }} className="font-semibold hover:underline">Remove</button>
+            <div className="mt-3 bg-emerald-500/10 text-emerald-400 text-[13px] 
+                            px-4 py-3 rounded-xl flex items-center justify-between
+                            border border-emerald-500/20 animate-scale-in">
+              <span className="font-semibold flex items-center gap-2">
+                <CheckCircle2 size={14} />
+                {appliedOffer.title} applied!
+              </span>
+              <button 
+                onClick={() => { setAppliedOffer(null); setCouponCode(''); }} 
+                className="font-bold hover:underline"
+              >
+                Remove
+              </button>
             </div>
           )}
           {featuredAutomaticOffer && (
-            <div className={`mt-2.5 text-[12px] px-3 py-2 rounded-lg border ${
+            <div className={`mt-3 text-[13px] px-4 py-3 rounded-xl border animate-fade-in ${
               automaticDiscount > 0
                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                 : 'bg-brand-gold/10 text-brand-gold border-brand-gold/20'
             }`}>
-              <span className="font-semibold">
-                {automaticDiscount > 0 ? `${featuredAutomaticOffer.title} applied automatically!` : `${featuredAutomaticOffer.title} available:`}
-              </span>{' '}
-              {automaticDiscount > 0
-                ? `You saved ₹${automaticDiscount.toFixed(0)}.`
-                : getOfferRuleSummary(featuredAutomaticOffer)}
+              <span className="font-semibold flex items-center gap-2">
+                <Sparkles size={14} />
+                {automaticDiscount > 0 
+                  ? `${featuredAutomaticOffer.title} applied automatically!` 
+                  : `${featuredAutomaticOffer.title} available:`}
+              </span>
+              <span className="block mt-1 text-[12px] opacity-80">
+                {automaticDiscount > 0
+                  ? `You saved Rs.${automaticDiscount.toFixed(0)}`
+                  : getOfferRuleSummary(featuredAutomaticOffer)}
+              </span>
             </div>
           )}
         </div>
 
-        <div className="bg-brand-surface rounded-xl p-4 border border-brand-border mb-6">
-          <div className="space-y-2 text-[14px]">
+        {/* Email Notification Info */}
+        <div className="bg-brand-surface/60 rounded-2xl p-4 border border-brand-border 
+                        mb-5 animate-fade-in-up flex items-center gap-3"
+             style={{ animationDelay: '0.3s' }}>
+          <div className="w-10 h-10 bg-brand-gold/10 rounded-xl 
+                          flex items-center justify-center flex-shrink-0">
+            <Mail size={18} className="text-brand-gold" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-medium text-brand-text-muted">
+              Order confirmation will be sent to your email
+            </p>
+            <p className="text-[11px] text-brand-text-dim mt-0.5">
+              Receipt on payment, notification when ready
+            </p>
+          </div>
+          <Shield size={16} className="text-emerald-400 flex-shrink-0" />
+        </div>
+
+        {/* Order Summary */}
+        <div className="bg-brand-surface/80 backdrop-blur-sm rounded-2xl p-5 
+                        border border-brand-border mb-6 animate-fade-in-up"
+             style={{ animationDelay: '0.35s' }}>
+          <h3 className="font-bold text-white text-[14px] mb-4">Order Summary</h3>
+          <div className="space-y-2.5 text-[14px]">
             <div className="flex justify-between text-brand-text-muted">
-              <span className="text-[13px]">Subtotal</span>
-              <span className="tabular-nums">{'\u20B9'}{subtotal.toFixed(0)}</span>
+              <span>Subtotal</span>
+              <span className="tabular-nums font-medium">{'\u20B9'}{subtotal.toFixed(0)}</span>
             </div>
             {couponDiscount > 0 && (
               <div className="flex justify-between text-emerald-400">
-                <span className="text-[13px]">Coupon</span>
-                <span className="tabular-nums">-{'\u20B9'}{couponDiscount.toFixed(0)}</span>
+                <span className="flex items-center gap-1.5">
+                  <Tag size={12} />
+                  Coupon Discount
+                </span>
+                <span className="tabular-nums font-medium">-{'\u20B9'}{couponDiscount.toFixed(0)}</span>
               </div>
             )}
             {automaticDiscount > 0 && (
               <div className="flex justify-between text-emerald-400">
-                <span className="text-[13px]">Offer</span>
-                <span className="tabular-nums">-{'\u20B9'}{automaticDiscount.toFixed(0)}</span>
-              </div>
-            )}
-            {addOnTotal > 0 && (
-              <div className="flex justify-between text-brand-text-muted">
-                <span className="text-[13px]">Add-ons in cart</span>
-                <span className="tabular-nums">{'\u20B9'}{addOnTotal.toFixed(0)}</span>
+                <span className="flex items-center gap-1.5">
+                  <Sparkles size={12} />
+                  Offer Discount
+                </span>
+                <span className="tabular-nums font-medium">-{'\u20B9'}{automaticDiscount.toFixed(0)}</span>
               </div>
             )}
             {discount > 0 && (
-              <div className="flex justify-between text-emerald-400">
-                <span className="text-[13px]">Total savings</span>
+              <div className="flex justify-between text-emerald-400 font-semibold 
+                              py-2 bg-emerald-500/5 rounded-lg px-3 -mx-3">
+                <span>Total Savings</span>
                 <span className="tabular-nums">-{'\u20B9'}{discount.toFixed(0)}</span>
               </div>
             )}
-            <div className="border-t border-brand-border pt-2.5 flex justify-between font-bold">
-              <span className="text-white">Total</span>
-              <span className="tabular-nums text-lg tracking-tight text-brand-gold">{'\u20B9'}{total.toFixed(0)}</span>
+            <div className="border-t border-brand-border pt-3 flex justify-between font-bold">
+              <span className="text-white text-[16px]">Total</span>
+              <span className="tabular-nums text-[20px] tracking-tight text-brand-gold">
+                {'\u20B9'}{total.toFixed(0)}
+              </span>
             </div>
           </div>
         </div>
 
+        {/* Place Order Button - Fixed */}
         <div className="cart-submit-bar">
           <div className="max-w-lg mx-auto">
             <button
               onClick={handlePlaceOrder}
               disabled={submitting || !!(settings && !settings.site_is_open)}
-              className="btn-primary w-full text-center text-[15px] font-extrabold py-3.5 rounded-xl tracking-tight"
+              className="btn-primary w-full text-center text-[16px] font-extrabold 
+                         py-4 rounded-2xl tracking-tight
+                         flex items-center justify-center gap-2"
             >
-              {!user
-                ? 'Sign In to Place Order'
-                : settings && !settings.site_is_open
-                ? settings.reopening_text || 'Orders Closed'
-                : submitting
-                ? paymentMethod === 'card' && !isFreeOrder ? 'Opening Payment...' : 'Placing Order...'
-                : isFreeOrder
-                ? 'Place Order -- FREE'
-                : <>Place Order -- {'\u20B9'}{total.toFixed(0)}</>}
+              {!user ? (
+                <>
+                  <User size={18} />
+                  Sign In to Place Order
+                </>
+              ) : settings && !settings.site_is_open ? (
+                settings.reopening_text || 'Orders Closed'
+              ) : submitting ? (
+                <span className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-brand-bg/30 border-t-brand-bg 
+                                  rounded-full animate-spin" />
+                  {paymentMethod === 'card' && !isFreeOrder 
+                    ? 'Opening Payment...' 
+                    : 'Placing Order...'}
+                </span>
+              ) : isFreeOrder ? (
+                <>
+                  <Sparkles size={18} />
+                  Place Order - FREE
+                </>
+              ) : (
+                <>
+                  Place Order - {'\u20B9'}{total.toFixed(0)}
+                </>
+              )}
             </button>
           </div>
         </div>

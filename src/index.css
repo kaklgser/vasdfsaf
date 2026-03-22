@@ -20,16 +20,17 @@
     line-height: 1.5;
     letter-spacing: -0.01em;
     background-image:
-      radial-gradient(circle at top left, rgba(216, 178, 78, 0.12), transparent 30%),
-      radial-gradient(circle at top right, rgba(93, 122, 66, 0.18), transparent 28%),
-      linear-gradient(180deg, #182014 0%, #12180F 40%, #0F140D 100%);
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(200, 160, 60, 0.08), transparent),
+      radial-gradient(circle at 80% 20%, rgba(180, 140, 50, 0.05), transparent 40%),
+      radial-gradient(circle at 20% 80%, rgba(160, 130, 60, 0.04), transparent 30%),
+      linear-gradient(180deg, #0a0c08 0%, #0d0f0a 50%, #0a0c08 100%);
     background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     line-height: 1.15;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
 
   p, span, a, li, label, td, th {
@@ -41,77 +42,102 @@
   }
 
   ::selection {
-    background: rgba(216, 178, 78, 0.24);
-    color: #F6F3E8;
+    background: rgba(200, 160, 60, 0.25);
+    color: #FAFAF7;
   }
 }
 
 @layer components {
   .customer-main {
-    @apply pb-16;
+    @apply pb-20;
   }
 
   .customer-bottom-nav {
-    @apply fixed bottom-0 left-0 right-0 z-50 bg-brand-bg border-t border-brand-border;
+    @apply fixed bottom-0 left-0 right-0 z-50 bg-brand-bg/98 backdrop-blur-2xl border-t border-brand-border;
   }
 
   .customer-floating-cart {
-    @apply fixed left-4 right-4 z-40 animate-slide-up max-w-lg mx-auto;
-    bottom: 76px;
+    @apply fixed left-4 right-4 z-40 max-w-lg mx-auto;
+    bottom: 80px;
   }
 
   .cart-submit-bar {
-    @apply fixed left-0 right-0 z-40 bg-brand-bg/95 backdrop-blur-sm border-t border-brand-border px-4 py-3;
-    bottom: 64px;
+    @apply fixed left-0 right-0 z-40 bg-brand-bg/98 backdrop-blur-xl border-t border-brand-border px-4 py-4;
+    bottom: 68px;
   }
 
   .btn-primary {
-    @apply bg-brand-gold text-brand-bg px-6 py-3.5 rounded-xl
-           hover:brightness-110 active:scale-[0.97] transition-all duration-200
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply relative overflow-hidden bg-gradient-to-r from-brand-gold via-brand-gold-soft to-brand-gold 
+           text-brand-bg px-7 py-4 rounded-2xl
+           hover:shadow-glow-gold active:scale-[0.98] transition-all duration-300
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none;
     font-weight: 700;
     font-size: 15px;
+    letter-spacing: 0.01em;
+    background-size: 200% 100%;
+    animation: gradient-shift 3s ease infinite;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+
+  .btn-primary:hover::before {
+    transform: translateX(100%);
   }
 
   .btn-secondary {
-    @apply bg-brand-surface text-brand-text px-6 py-3.5 rounded-xl
-           border border-brand-border hover:border-brand-gold/30 hover:text-brand-gold
-           active:scale-[0.97] transition-all duration-200;
+    @apply bg-brand-surface text-brand-text px-7 py-4 rounded-2xl
+           border border-brand-border hover:border-brand-gold/40 hover:text-brand-gold
+           hover:bg-brand-surface-light/50
+           active:scale-[0.98] transition-all duration-300;
     font-weight: 600;
     font-size: 15px;
   }
 
   .btn-outline {
-    @apply border border-brand-gold text-brand-gold px-6 py-3.5 rounded-xl
-           hover:bg-brand-gold hover:text-brand-bg active:scale-[0.97] transition-all duration-200;
+    @apply border-2 border-brand-gold/60 text-brand-gold px-7 py-4 rounded-2xl
+           hover:bg-brand-gold hover:text-brand-bg hover:border-brand-gold
+           hover:shadow-glow-gold active:scale-[0.98] transition-all duration-300;
     font-weight: 700;
     font-size: 15px;
   }
 
   .card {
-    @apply bg-brand-surface rounded-xl border border-brand-border overflow-hidden
-           hover:border-brand-gold/20 transition-all duration-300;
+    @apply bg-brand-surface/90 backdrop-blur-sm rounded-2xl border border-brand-border overflow-hidden
+           hover:border-brand-gold/30 hover:shadow-card-hover 
+           transition-all duration-500 ease-out;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
   }
 
   .input-field {
-    @apply w-full px-4 py-3.5 border border-brand-border rounded-xl text-brand-text
-           focus:outline-none focus:ring-2 focus:ring-brand-gold/15 focus:border-brand-gold/50
-           transition-all duration-200 placeholder:text-brand-text-dim
-           bg-brand-surface hover:border-brand-border-strong;
+    @apply w-full px-5 py-4 border border-brand-border rounded-2xl text-brand-text
+           focus:outline-none focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold/60
+           transition-all duration-300 placeholder:text-brand-text-dim
+           bg-brand-surface/80 backdrop-blur-sm hover:border-brand-border-strong
+           hover:bg-brand-surface;
     font-size: 15px;
     font-weight: 500;
   }
 
   .badge-veg {
-    @apply inline-flex items-center gap-1 px-2.5 py-1
-           bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md;
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5
+           bg-emerald-500/12 text-emerald-400 border border-emerald-500/25 rounded-lg;
     font-size: 12px;
     font-weight: 600;
   }
 
   .badge-nonveg {
-    @apply inline-flex items-center gap-1 px-2.5 py-1
-           bg-red-500/10 text-red-400 border border-red-500/20 rounded-md;
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5
+           bg-red-500/12 text-red-400 border border-red-500/25 rounded-lg;
     font-size: 12px;
     font-weight: 600;
   }
@@ -121,20 +147,21 @@
   }
 
   .glass-panel {
-    @apply bg-brand-surface/80 backdrop-blur-xl border border-brand-border;
+    @apply bg-brand-surface/70 backdrop-blur-2xl border border-brand-border/80;
   }
 
   .section-label {
-    @apply text-brand-gold-soft uppercase;
-    font-size: 12px;
+    @apply text-brand-gold uppercase;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.15em;
   }
 
   .section-title {
-    @apply text-brand-text mt-1;
-    font-size: 20px;
-    font-weight: 700;
+    @apply text-brand-text mt-1.5;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
   }
 
   .scrollbar-hide {
@@ -144,6 +171,91 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Premium hover effects */
+  .hover-lift {
+    @apply transition-all duration-500 ease-out;
+  }
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  /* Stagger animation helpers */
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
+  .stagger-5 { animation-delay: 0.25s; }
+  .stagger-6 { animation-delay: 0.3s; }
+
+  /* Loading skeleton with shimmer */
+  .skeleton {
+    @apply bg-brand-surface-light relative overflow-hidden;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  /* Premium text gradient */
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-gold via-brand-gold-soft to-brand-gold bg-clip-text text-transparent;
+    background-size: 200% 100%;
+    animation: gradient-shift 4s ease infinite;
+  }
+
+  /* Glow effect */
+  .glow {
+    @apply relative;
+  }
+  .glow::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: radial-gradient(circle at center, rgba(200, 160, 60, 0.15), transparent 70%);
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .glow:hover::before {
+    opacity: 1;
+  }
+
+  /* Floating animation */
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* Ripple effect for buttons */
+  .ripple {
+    position: relative;
+    overflow: hidden;
+  }
+  .ripple::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.2), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .ripple:active::after {
+    opacity: 1;
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 @media (orientation: landscape) {
@@ -156,28 +268,45 @@
   }
 
   .customer-floating-cart {
-    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .cart-submit-bar {
     bottom: 0;
-    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #12180F;
+  background: #0a0c08;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4B5C3C;
+  background: linear-gradient(180deg, #3a4530, #4a5840);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #61794C;
+  background: linear-gradient(180deg, #4a5840, #5a6850);
+}
+
+/* Custom focus styles */
+*:focus-visible {
+  outline: 2px solid rgba(200, 160, 60, 0.5);
+  outline-offset: 2px;
+}
+
+/* Smooth page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }

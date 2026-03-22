@@ -29,34 +29,65 @@ export default function BottomNav() {
 
   return (
     <nav className="customer-bottom-nav">
-      <div className="flex items-center justify-around h-[64px] max-w-lg mx-auto px-2">
-        {tabs.map((tab) => {
+      <div className="flex items-center justify-around h-[68px] max-w-lg mx-auto px-3">
+        {tabs.map((tab, index) => {
           const to = tab.to === '/auth' ? getProfileTo() : tab.to;
           const active = isActive(tab.to);
           const Icon = tab.icon;
+          
           return (
             <Link
               key={tab.label}
               to={to}
-              className={`flex flex-col items-center justify-center gap-1 w-[72px] py-2 rounded-xl transition-all ${
+              className={`relative flex flex-col items-center justify-center 
+                          gap-1 w-[72px] py-2.5 rounded-2xl 
+                          transition-all duration-300 ease-out
+                          group ${
                 active
                   ? 'text-brand-gold'
                   : 'text-brand-text-dim hover:text-brand-text-muted'
               }`}
+              style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className={`relative ${active ? '' : ''}`}>
-                <Icon size={24} strokeWidth={active ? 2.5 : 2} />
+              {/* Active Background */}
+              {active && (
+                <div className="absolute inset-x-2 inset-y-1 
+                                bg-brand-gold/10 rounded-xl
+                                animate-scale-in" />
+              )}
+              
+              {/* Icon Container */}
+              <div className={`relative z-10 transition-transform duration-300 ${
+                active ? 'scale-110' : 'group-hover:scale-110'
+              }`}>
+                <Icon 
+                  size={24} 
+                  strokeWidth={active ? 2.5 : 2} 
+                  className="transition-all duration-300"
+                />
+                
+                {/* Active Indicator Dot */}
                 {active && (
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-brand-gold rounded-full" />
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 
+                                  w-1.5 h-1.5 bg-brand-gold rounded-full
+                                  animate-scale-in-bounce
+                                  shadow-[0_0_8px_rgba(200,160,60,0.5)]" />
                 )}
               </div>
-              <span className={`text-[12px] leading-none ${active ? 'font-bold' : 'font-semibold'}`}>
+              
+              {/* Label */}
+              <span className={`relative z-10 text-[11px] leading-none 
+                                transition-all duration-300 ${
+                active ? 'font-bold' : 'font-semibold'
+              }`}>
                 {tab.label === 'Profile' && user ? 'Profile' : tab.label}
               </span>
             </Link>
           );
         })}
       </div>
+      
+      {/* Safe Area Spacer */}
       <div className="h-[env(safe-area-inset-bottom)]" />
     </nav>
   );

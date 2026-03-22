@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Minus, Plus, Check } from 'lucide-react';
+import { X, Minus, Plus, Check, Sparkles } from 'lucide-react';
 import type { MenuItem, CustomizationGroup, CustomizationOption, SelectedCustomization } from '../types';
 import { supabase } from '../lib/supabase';
 
@@ -73,70 +73,159 @@ export default function CustomizationModal({ item, onClose, onConfirm }: Props) 
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-brand-overlay backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-brand-surface w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[80vh] sm:max-h-[90vh] flex flex-col animate-slide-up shadow-elevated border border-brand-border mb-16 sm:mb-0">
-        <div className="flex items-center justify-between p-5 border-b border-brand-border">
-          <div>
-            <h3 className="font-extrabold text-[18px] text-white">{item.name}</h3>
-            <p className="text-[14px] font-semibold text-brand-text-dim">{'\u20B9'}{item.price} base price</p>
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-brand-overlay/95 backdrop-blur-md animate-fade-in" 
+        onClick={onClose} 
+      />
+      
+      {/* Modal */}
+      <div className="relative bg-brand-surface/98 backdrop-blur-xl 
+                      w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl 
+                      max-h-[85vh] sm:max-h-[90vh] 
+                      flex flex-col 
+                      animate-slide-up 
+                      shadow-elevated border border-brand-border
+                      mb-16 sm:mb-0
+                      overflow-hidden">
+        
+        {/* Header */}
+        <div className="relative flex-shrink-0 border-b border-brand-border">
+          {/* Item Preview Image (small) */}
+          <div className="absolute -top-1 left-5 w-20 h-20 sm:w-24 sm:h-24 
+                          rounded-2xl overflow-hidden 
+                          border-4 border-brand-surface shadow-elevated
+                          transform -translate-y-1/2
+                          hidden sm:block">
+            <img 
+              src={item.image_url} 
+              alt={item.name} 
+              className="w-full h-full object-cover" 
+            />
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-brand-surface-light/70 rounded-xl transition-colors">
-            <X size={22} className="text-brand-text-dim" strokeWidth={2.5} />
-          </button>
+          
+          <div className="flex items-start justify-between p-5 sm:pl-32">
+            <div className="pt-1">
+              <h3 className="font-extrabold text-[20px] text-white tracking-tight">
+                {item.name}
+              </h3>
+              <p className="text-[14px] font-semibold text-brand-text-dim mt-0.5">
+                {'\u20B9'}{item.price} base price
+              </p>
+            </div>
+            <button 
+              onClick={onClose} 
+              className="p-2.5 hover:bg-brand-surface-light rounded-xl 
+                         transition-colors duration-200 group"
+            >
+              <X 
+                size={22} 
+                className="text-brand-text-dim group-hover:text-white 
+                           group-hover:rotate-90 transition-all duration-300" 
+                strokeWidth={2.5} 
+              />
+            </button>
+          </div>
         </div>
 
+        {/* Content */}
         <div className="flex-1 overflow-y-auto p-5 space-y-6">
           {loading ? (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="animate-pulse">
-                  <div className="h-4 bg-brand-surface-light rounded w-24 mb-3" />
-                  <div className="space-y-2">
-                    <div className="h-12 bg-brand-surface-light/70 rounded-xl" />
-                    <div className="h-12 bg-brand-surface-light/70 rounded-xl" />
+                  <div className="h-5 bg-brand-surface-light rounded-lg w-28 mb-4" />
+                  <div className="space-y-2.5">
+                    <div className="h-14 bg-brand-surface-light/70 rounded-2xl" />
+                    <div className="h-14 bg-brand-surface-light/70 rounded-2xl" />
                   </div>
                 </div>
               ))}
             </div>
           ) : groups.length === 0 ? (
-            <p className="text-brand-text-dim text-sm text-center py-4">No customization options available</p>
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-brand-surface-light rounded-2xl 
+                              flex items-center justify-center mx-auto mb-3">
+                <Sparkles size={24} className="text-brand-text-dim" />
+              </div>
+              <p className="text-brand-text-dim text-[15px] font-medium">
+                No customization options available
+              </p>
+              <p className="text-brand-text-dim/60 text-[13px] mt-1">
+                This item is perfect as is!
+              </p>
+            </div>
           ) : (
-            groups.map((group) => (
-              <div key={group.id}>
-                <div className="flex items-center gap-2 mb-3">
-                  <h4 className="font-bold text-[15px] text-white">{group.name}</h4>
-                  <span className="text-[13px] font-semibold text-brand-text-dim">
+            groups.map((group, groupIndex) => (
+              <div 
+                key={group.id} 
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${groupIndex * 0.1}s` }}
+              >
+                {/* Group Header */}
+                <div className="flex items-center gap-3 mb-3">
+                  <h4 className="font-bold text-[16px] text-white">{group.name}</h4>
+                  <span className="text-[12px] font-medium text-brand-text-dim 
+                                   px-2 py-0.5 bg-brand-surface-light rounded-md">
                     {group.selection_type === 'single' ? 'Choose one' : 'Choose multiple'}
                   </span>
                   {group.is_required && (
-                    <span className="text-[13px] text-brand-gold font-bold">Required</span>
+                    <span className="text-[11px] text-brand-gold font-bold 
+                                     px-2 py-0.5 bg-brand-gold/10 rounded-md
+                                     border border-brand-gold/20">
+                      Required
+                    </span>
                   )}
                 </div>
+                
+                {/* Options */}
                 <div className="space-y-2">
-                  {group.options.map((option) => {
+                  {group.options.map((option, optionIndex) => {
                     const isSelected = (selected[group.id] || []).includes(option.id);
                     return (
                       <button
                         key={option.id}
                         onClick={() => toggleOption(group.id, option.id, group.selection_type)}
-                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-200 ${
-                          isSelected
-                            ? 'border-brand-gold bg-brand-gold/10'
-                            : 'border-brand-border hover:border-brand-border-strong'
-                        }`}
+                        className={`w-full flex items-center justify-between 
+                                    px-4 py-3.5 rounded-2xl border-2 
+                                    transition-all duration-300 group/option
+                                    ${isSelected
+                                      ? 'border-brand-gold bg-brand-gold/10 shadow-glow-gold-soft'
+                                      : 'border-brand-border hover:border-brand-gold/30 hover:bg-brand-surface-light/50'
+                                    }`}
+                        style={{ animationDelay: `${(groupIndex * 0.1) + (optionIndex * 0.05)}s` }}
                       >
                         <div className="flex items-center gap-3">
+                          {/* Checkbox/Radio */}
                           <div
-                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                              isSelected ? 'border-brand-gold bg-brand-gold' : 'border-brand-text-dim'
-                            }`}
+                            className={`w-6 h-6 rounded-full border-2 
+                                        flex items-center justify-center 
+                                        transition-all duration-300
+                                        ${isSelected 
+                                          ? 'border-brand-gold bg-brand-gold scale-100' 
+                                          : 'border-brand-text-dim group-hover/option:border-brand-gold/50 scale-90 group-hover/option:scale-100'
+                                        }`}
                           >
-                            {isSelected && <Check size={12} className="text-brand-bg" />}
+                            {isSelected && (
+                              <Check 
+                                size={14} 
+                                className="text-brand-bg animate-scale-in" 
+                                strokeWidth={3} 
+                              />
+                            )}
                           </div>
-                          <span className="text-[14px] font-semibold text-white">{option.name}</span>
+                          <span className={`text-[15px] font-semibold transition-colors duration-200 ${
+                            isSelected ? 'text-white' : 'text-brand-text-muted'
+                          }`}>
+                            {option.name}
+                          </span>
                         </div>
                         {option.price > 0 && (
-                          <span className="text-[14px] font-bold text-brand-text-muted">+{'\u20B9'}{option.price}</span>
+                          <span className={`text-[14px] font-bold transition-colors duration-200 ${
+                            isSelected ? 'text-brand-gold' : 'text-brand-text-dim'
+                          }`}>
+                            +{'\u20B9'}{option.price}
+                          </span>
                         )}
                       </button>
                     );
@@ -147,27 +236,44 @@ export default function CustomizationModal({ item, onClose, onConfirm }: Props) 
           )}
         </div>
 
-        <div className="flex-shrink-0 border-t border-brand-border p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] sm:pb-5 space-y-4">
-          <div className="flex items-center justify-center gap-5">
+        {/* Footer */}
+        <div className="flex-shrink-0 border-t border-brand-border 
+                        p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:pb-5 
+                        space-y-4 bg-brand-surface/50 backdrop-blur-sm">
+          
+          {/* Quantity Selector */}
+          <div className="flex items-center justify-center gap-6">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-10 h-10 rounded-xl border border-brand-border flex items-center justify-center text-white hover:border-brand-gold/30 transition-colors"
+              className="w-12 h-12 rounded-xl border-2 border-brand-border 
+                         flex items-center justify-center 
+                         text-white hover:border-brand-gold/40 hover:bg-brand-surface-light
+                         active:scale-95 transition-all duration-200"
             >
-              <Minus size={16} />
+              <Minus size={18} strokeWidth={2.5} />
             </button>
-            <span className="text-[20px] font-extrabold w-8 text-center tabular-nums text-white">{quantity}</span>
+            <span className="text-[24px] font-extrabold w-10 text-center 
+                             tabular-nums text-white">
+              {quantity}
+            </span>
             <button
               onClick={() => setQuantity(quantity + 1)}
-              className="w-10 h-10 rounded-xl bg-brand-gold text-brand-bg flex items-center justify-center hover:brightness-110 transition-all"
+              className="w-12 h-12 rounded-xl bg-brand-gold text-brand-bg 
+                         flex items-center justify-center 
+                         hover:brightness-110 hover:shadow-glow-gold-soft
+                         active:scale-95 transition-all duration-200"
             >
-              <Plus size={16} />
+              <Plus size={18} strokeWidth={2.5} />
             </button>
           </div>
 
+          {/* Price Breakdown */}
           {customizationsTotal > 0 && (
-            <div className="flex items-center justify-center gap-2 text-[12px] text-brand-text-dim">
+            <div className="flex items-center justify-center gap-2 
+                            text-[13px] text-brand-text-dim font-medium
+                            bg-brand-surface-light/50 rounded-xl py-2 px-4">
               <span>Base {'\u20B9'}{item.price}</span>
-              <span className="text-brand-text-dim/50">+</span>
+              <span className="text-brand-gold">+</span>
               <span>Add-ons {'\u20B9'}{customizationsTotal}</span>
               {quantity > 1 && (
                 <>
@@ -178,12 +284,14 @@ export default function CustomizationModal({ item, onClose, onConfirm }: Props) 
             </div>
           )}
 
+          {/* Add to Cart Button */}
           <button
             onClick={() => onConfirm(item, quantity, getSelectedCustomizations())}
-            className="btn-primary w-full text-center flex items-center justify-center gap-2"
+            className="btn-primary w-full text-center flex items-center justify-center gap-3 
+                       text-[16px] py-4"
           >
             <span>Add to Cart</span>
-            <span className="font-extrabold">{'\u20B9'}{totalPrice.toFixed(0)}</span>
+            <span className="font-extrabold text-[18px]">{'\u20B9'}{totalPrice.toFixed(0)}</span>
           </button>
         </div>
       </div>

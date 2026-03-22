@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Sparkles, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Category, MenuItem } from '../types';
 import ProductCard from '../components/ProductCard';
@@ -64,33 +64,51 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-brand-bg">
-      <div className="bg-brand-bg/95 backdrop-blur-xl border-b border-brand-border sticky top-[60px] lg:top-[68px] z-30">
-        <div className="px-4 py-3">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="relative flex-1">
-              <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-gold" strokeWidth={2.5} />
+      {/* Sticky Header */}
+      <div className="bg-brand-bg/98 backdrop-blur-2xl border-b border-brand-border 
+                      sticky top-[64px] lg:top-[72px] z-30">
+        <div className="px-4 py-4">
+          {/* Search Bar */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="relative flex-1 group">
+              <Search 
+                size={18} 
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gold 
+                           transition-transform group-focus-within:scale-110" 
+                strokeWidth={2.5} 
+              />
               <input
                 type="text"
                 placeholder="Search waffles..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="input-field pl-11 text-[15px] font-medium"
+                className="input-field pl-12 text-[15px] font-medium
+                           focus:shadow-glow-gold-soft"
                 autoFocus
               />
               {search && (
-                <button onClick={() => setSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-brand-text-dim hover:text-white transition-colors">
+                <button 
+                  onClick={() => setSearch('')} 
+                  className="absolute right-4 top-1/2 -translate-y-1/2 
+                             p-1 rounded-lg
+                             text-brand-text-dim hover:text-white hover:bg-brand-surface-light
+                             transition-all"
+                >
                   <X size={18} strokeWidth={2.5} />
                 </button>
               )}
             </div>
           </div>
+          
+          {/* Category Pills */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 -mb-1 scrollbar-hide">
             <button
               onClick={() => handleCategoryChange('all')}
-              className={`whitespace-nowrap px-4 py-2.5 rounded-lg text-[13px] font-bold transition-all ${
+              className={`whitespace-nowrap px-5 py-2.5 rounded-xl 
+                          text-[13px] font-bold transition-all duration-300 ${
                 activeCategory === 'all'
-                  ? 'bg-brand-gold text-brand-bg'
-                  : 'bg-brand-surface text-brand-text-muted border border-brand-border hover:border-brand-border'
+                  ? 'bg-brand-gold text-brand-bg shadow-glow-gold-soft'
+                  : 'bg-brand-surface text-brand-text-muted border border-brand-border hover:border-brand-gold/30'
               }`}
             >
               All
@@ -99,10 +117,11 @@ export default function MenuPage() {
               <button
                 key={cat.id}
                 onClick={() => handleCategoryChange(cat.slug)}
-                className={`whitespace-nowrap px-4 py-2.5 rounded-lg text-[13px] font-bold transition-all ${
+                className={`whitespace-nowrap px-5 py-2.5 rounded-xl 
+                            text-[13px] font-bold transition-all duration-300 ${
                   activeCategory === cat.slug
-                    ? 'bg-brand-gold text-brand-bg'
-                    : 'bg-brand-surface text-brand-text-muted border border-brand-border hover:border-brand-border'
+                    ? 'bg-brand-gold text-brand-bg shadow-glow-gold-soft'
+                    : 'bg-brand-surface text-brand-text-muted border border-brand-border hover:border-brand-gold/30'
                 }`}
               >
                 {cat.name}
@@ -112,35 +131,51 @@ export default function MenuPage() {
         </div>
       </div>
 
-      <div className="px-4 py-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
+      {/* Content */}
+      <div className="px-4 py-5">
+        {/* Filters Row */}
+        <div className="flex items-center justify-between mb-5 animate-fade-in">
+          <div className="flex items-center gap-2">
+            {/* Veg Filter */}
             <button
               onClick={() => setVegOnly(!vegOnly)}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[13px] font-bold transition-all ${
-                vegOnly ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-brand-surface text-brand-text-dim border border-brand-border'
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl 
+                          text-[13px] font-bold transition-all duration-300 ${
+                vegOnly 
+                  ? 'bg-emerald-500/15 text-emerald-400 border-2 border-emerald-500/40' 
+                  : 'bg-brand-surface text-brand-text-dim border border-brand-border hover:border-brand-gold/30'
               }`}
             >
-              <div className="w-3.5 h-3.5 border-2 border-emerald-400 rounded-sm flex items-center justify-center">
-                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+              <div className="w-4 h-4 border-2 border-emerald-400 rounded-sm 
+                              flex items-center justify-center">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full" />
               </div>
               Veg
             </button>
+            
+            {/* Eggless Filter */}
             <button
               onClick={() => setEgglessOnly(!egglessOnly)}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[13px] font-bold transition-all ${
-                egglessOnly ? 'bg-brand-gold/20 text-brand-gold border border-brand-gold/30' : 'bg-brand-surface text-brand-text-dim border border-brand-border'
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl 
+                          text-[13px] font-bold transition-all duration-300 ${
+                egglessOnly 
+                  ? 'bg-brand-gold/15 text-brand-gold border-2 border-brand-gold/40' 
+                  : 'bg-brand-surface text-brand-text-dim border border-brand-border hover:border-brand-gold/30'
               }`}
             >
               Eggless
             </button>
           </div>
-          <div className="flex items-center gap-1.5">
+          
+          {/* Sort */}
+          <div className="flex items-center gap-2 bg-brand-surface rounded-xl 
+                          px-3 py-2 border border-brand-border">
             <SlidersHorizontal size={14} className="text-brand-text-dim" strokeWidth={2.5} />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="text-[13px] bg-transparent font-bold text-brand-text-muted focus:outline-none cursor-pointer"
+              className="text-[13px] bg-transparent font-bold text-brand-text-muted 
+                         focus:outline-none cursor-pointer"
             >
               <option value="popular">Popular</option>
               <option value="price_low">Price: Low</option>
@@ -149,27 +184,83 @@ export default function MenuPage() {
           </div>
         </div>
 
+        {/* Results Count */}
+        {!loading && (
+          <div className="flex items-center gap-2 mb-4 animate-fade-in">
+            <span className="text-[13px] font-medium text-brand-text-dim">
+              {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'} found
+            </span>
+            {(vegOnly || egglessOnly || activeCategory !== 'all') && (
+              <button
+                onClick={() => {
+                  setVegOnly(false);
+                  setEgglessOnly(false);
+                  handleCategoryChange('all');
+                }}
+                className="text-[12px] font-bold text-brand-gold hover:underline"
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Loading Skeletons */}
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => <CardSkeleton key={i} />)}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div 
+                key={i} 
+                className="animate-fade-in"
+                style={{ animationDelay: `${i * 0.05}s` }}
+              >
+                <CardSkeleton />
+              </div>
+            ))}
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-brand-surface rounded-2xl flex items-center justify-center mx-auto mb-3">
-              <Search size={24} className="text-brand-text-dim" strokeWidth={2.5} />
+          /* Empty State */
+          <div className="text-center py-20 animate-fade-in">
+            <div className="w-20 h-20 bg-brand-surface rounded-2xl 
+                            flex items-center justify-center mx-auto mb-4
+                            border border-brand-border">
+              <Search size={32} className="text-brand-text-dim" strokeWidth={2} />
             </div>
-            <h3 className="text-[17px] font-bold text-white mb-1.5">No waffles found</h3>
-            <p className="text-brand-text-dim text-[14px] font-medium">Try adjusting your filters or search terms</p>
+            <h3 className="text-[18px] font-bold text-white mb-2">
+              No waffles found
+            </h3>
+            <p className="text-brand-text-dim text-[14px] font-medium max-w-[250px] mx-auto">
+              Try adjusting your filters or search for something else
+            </p>
+            <button
+              onClick={() => {
+                setSearch('');
+                setVegOnly(false);
+                setEgglessOnly(false);
+                handleCategoryChange('all');
+              }}
+              className="btn-outline mt-6 text-[14px]"
+            >
+              View All Items
+            </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-            {filteredItems.map((item) => (
-              <ProductCard key={item.id} item={item} onAdd={setSelectedItem} />
+          /* Product Grid */
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {filteredItems.map((item, index) => (
+              <div 
+                key={item.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${index * 0.03}s` }}
+              >
+                <ProductCard item={item} onAdd={setSelectedItem} />
+              </div>
             ))}
           </div>
         )}
       </div>
 
+      {/* Customization Modal */}
       {selectedItem && (
         <CustomizationModal
           item={selectedItem}
