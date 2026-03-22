@@ -319,10 +319,6 @@ export default function CartPage() {
         })),
       });
 
-      if (isFreeOrder && order.receiptEmailSent === false) {
-        showToast('Order placed, but receipt email failed', 'error');
-      }
-
       storeCheckoutSuccessOrder(order.appOrderId);
       showToast('Order placed successfully');
       playOrderSound();

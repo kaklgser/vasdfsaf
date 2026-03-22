@@ -495,12 +495,12 @@ Deno.serve(async (req: Request) => {
     if (!resendApiKey || !fromEmail) {
       return new Response(
         JSON.stringify({
-          success: false,
-          error:
-            "Receipt email is not configured. Set RESEND_API_KEY and ORDER_RECEIPT_FROM_EMAIL.",
+          success: true,
+          skipped: true,
+          reason: "Receipt email is not configured. Set RESEND_API_KEY and ORDER_RECEIPT_FROM_EMAIL.",
         }),
         {
-          status: 500,
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
