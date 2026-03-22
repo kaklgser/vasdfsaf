@@ -53,7 +53,8 @@
   }
 
   .customer-bottom-nav {
-    @apply fixed bottom-0 left-0 right-0 z-50 bg-brand-bg/98 backdrop-blur-2xl border-t border-brand-border;
+    @apply fixed bottom-0 left-0 right-0 z-50 backdrop-blur-2xl border-t border-brand-border;
+    background-color: rgba(10, 12, 8, 0.98);
   }
 
   .customer-floating-cart {
@@ -62,7 +63,8 @@
   }
 
   .cart-submit-bar {
-    @apply fixed left-0 right-0 z-40 bg-brand-bg/98 backdrop-blur-xl border-t border-brand-border px-4 py-4;
+    @apply fixed left-0 right-0 z-40 backdrop-blur-xl border-t border-brand-border px-4 py-4;
+    background-color: rgba(10, 12, 8, 0.98);
     bottom: 68px;
   }
 
