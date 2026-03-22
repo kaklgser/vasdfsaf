@@ -132,14 +132,18 @@
 
   .badge-veg {
     @apply inline-flex items-center gap-1.5 px-3 py-1.5
-           bg-emerald-500/12 text-emerald-400 border border-emerald-500/25 rounded-lg;
+           text-emerald-400 rounded-lg;
+    background-color: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
     font-size: 12px;
     font-weight: 600;
   }
 
   .badge-nonveg {
     @apply inline-flex items-center gap-1.5 px-3 py-1.5
-           bg-red-500/12 text-red-400 border border-red-500/25 rounded-lg;
+           text-red-400 rounded-lg;
+    background-color: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.25);
     font-size: 12px;
     font-weight: 600;
   }
