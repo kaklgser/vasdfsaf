@@ -11,7 +11,7 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
 
   async function refreshSettings() {
     const { data, error } = await supabase
-      .from('site_settings')
+      .from('site_settings_public')
       .select('*')
       .eq('id', true)
       .maybeSingle();

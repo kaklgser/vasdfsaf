@@ -127,8 +127,8 @@ function serviceModeLabel(order: Pick<ReceiptOrder, "order_type" | "pickup_optio
   return order.pickup_option === "dine_in" ? "Dine In" : "Takeaway";
 }
 
-function receiptEmailCopy(order: ReceiptOrder): ReceiptEmailCopy {
-  if (isFreeOrder(toNumber(order.total))) {
+function receiptEmailCopy(order: ReceiptOrder, isConfirmation: boolean): ReceiptEmailCopy {
+  if (isConfirmation || isFreeOrder(toNumber(order.total))) {
     return {
       subject: `Your order confirmation for order ${order.order_id}`,
       heading: "Your order confirmation",
@@ -252,12 +252,12 @@ function buildReceiptRows(items: ReceiptItemRow[]) {
   });
 }
 
-function buildEmailHtml(order: ReceiptOrder, items: ReceiptItemRow[]) {
+function buildEmailHtml(order: ReceiptOrder, items: ReceiptItemRow[], isConfirmation: boolean) {
   const rows = buildReceiptRows(items);
   const placedAt = formatPlacedAt(order.placed_at);
   const paymentLabel = paymentMethodLabel(order.payment_method, order.order_type, toNumber(order.total));
   const serviceMode = serviceModeLabel(order);
-  const copy = receiptEmailCopy(order);
+  const copy = receiptEmailCopy(order, isConfirmation);
 
   const itemRowsHtml = rows
     .map((item) => {
@@ -399,11 +399,11 @@ function buildEmailHtml(order: ReceiptOrder, items: ReceiptItemRow[]) {
   `;
 }
 
-function buildEmailText(order: ReceiptOrder, items: ReceiptItemRow[]) {
+function buildEmailText(order: ReceiptOrder, items: ReceiptItemRow[], isConfirmation: boolean) {
   const rows = buildReceiptRows(items);
   const paymentLabel = paymentMethodLabel(order.payment_method, order.order_type, toNumber(order.total));
   const serviceMode = serviceModeLabel(order);
-  const copy = receiptEmailCopy(order);
+  const copy = receiptEmailCopy(order, isConfirmation);
   const itemLines = rows
     .map((item) => {
       const customizationLines = item.customizations
@@ -514,7 +514,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { orderId } = await req.json() as { orderId?: string };
+    const { orderId, type } = await req.json() as { orderId?: string; type?: string };
     if (!orderId?.trim()) {
       return new Response(
         JSON.stringify({ success: false, error: "orderId is required" }),
@@ -607,7 +607,8 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (order.payment_status !== "paid") {
+    const isConfirmation = type === "confirmation";
+    if (!isConfirmation && order.payment_status !== "paid") {
       return new Response(
         JSON.stringify({ success: false, error: "Payment is not marked as paid yet" }),
         {
@@ -649,7 +650,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const items = (itemsData ?? []) as ReceiptItemRow[];
-    const copy = receiptEmailCopy(order);
+    const copy = receiptEmailCopy(order, isConfirmation);
 
     const transport = createSmtpTransport(smtpConfig);
     const fromEmail = smtpConfig.smtp_from_email || smtpConfig.smtp_user;
@@ -659,8 +660,8 @@ Deno.serve(async (req: Request) => {
       from: `${fromName} <${fromEmail}>`,
       to: recipient,
       subject: copy.subject,
-      html: buildEmailHtml(order, items),
-      text: buildEmailText(order, items),
+      html: buildEmailHtml(order, items, isConfirmation),
+      text: buildEmailText(order, items, isConfirmation),
     });
 
     return new Response(

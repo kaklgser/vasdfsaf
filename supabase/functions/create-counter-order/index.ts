@@ -86,6 +86,7 @@ async function requestReceiptEmail(
   anonKey: string,
   serviceKey: string,
   orderId: string,
+  type: "receipt" | "confirmation" = "receipt",
 ) {
   const response = await fetch(`${supabaseUrl}/functions/v1/send-order-receipt`, {
     method: "POST",
@@ -94,7 +95,7 @@ async function requestReceiptEmail(
       apikey: anonKey,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ orderId }),
+    body: JSON.stringify({ orderId, type }),
   });
 
   if (!response.ok) {
@@ -240,13 +241,12 @@ Deno.serve(async (req: Request) => {
     }
 
     let receiptEmailSent = false;
-    if (paymentStatus === "paid") {
-      try {
-        await requestReceiptEmail(supabaseUrl, anonKey, serviceKey, order.order_id);
-        receiptEmailSent = true;
-      } catch (receiptError) {
-        console.error("Failed to send free-order receipt email", receiptError);
-      }
+    try {
+      const emailType = paymentStatus === "paid" ? "receipt" : "confirmation";
+      await requestReceiptEmail(supabaseUrl, anonKey, serviceKey, order.order_id, emailType);
+      receiptEmailSent = true;
+    } catch (receiptError) {
+      console.error("Failed to send order email", receiptError);
     }
 
     return jsonResponse({

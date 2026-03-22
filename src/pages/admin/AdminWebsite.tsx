@@ -37,7 +37,7 @@ function buildSmtpForm(settings: SiteSettings | null): SmtpForm {
     smtp_host: settings?.smtp_host || '',
     smtp_port: String(settings?.smtp_port || 587),
     smtp_user: settings?.smtp_user || '',
-    smtp_pass: settings?.smtp_pass || '',
+    smtp_pass: '',
     smtp_from_email: settings?.smtp_from_email || '',
     smtp_from_name: settings?.smtp_from_name || 'The Supreme Waffle',
   };
@@ -102,21 +102,14 @@ export default function AdminWebsite() {
 
     setSavingSmtp(true);
 
-    const payload: Record<string, unknown> = {
-      id: true,
-      smtp_host: smtpForm.smtp_host.trim(),
-      smtp_port: parseInt(smtpForm.smtp_port, 10) || 587,
-      smtp_user: smtpForm.smtp_user.trim(),
-      smtp_from_email: smtpForm.smtp_from_email.trim() || smtpForm.smtp_user.trim(),
-      smtp_from_name: smtpForm.smtp_from_name.trim() || 'The Supreme Waffle',
-      updated_at: new Date().toISOString(),
-    };
-
-    if (smtpForm.smtp_pass) {
-      payload.smtp_pass = smtpForm.smtp_pass;
-    }
-
-    const { error } = await supabase.from('site_settings').upsert(payload, { onConflict: 'id' });
+    const { error } = await supabase.rpc('save_smtp_settings', {
+      p_smtp_host: smtpForm.smtp_host.trim(),
+      p_smtp_port: parseInt(smtpForm.smtp_port, 10) || 587,
+      p_smtp_user: smtpForm.smtp_user.trim(),
+      p_smtp_pass: smtpForm.smtp_pass || null,
+      p_smtp_from_email: smtpForm.smtp_from_email.trim() || smtpForm.smtp_user.trim(),
+      p_smtp_from_name: smtpForm.smtp_from_name.trim() || 'The Supreme Waffle',
+    });
 
     if (error) {
       setSavingSmtp(false);
@@ -350,7 +343,7 @@ export default function AdminWebsite() {
                 value={smtpForm.smtp_pass}
                 onChange={(e) => setSmtpForm((c) => ({ ...c, smtp_pass: e.target.value }))}
                 className="input-field pr-10"
-                placeholder={settings?.smtp_pass ? '(unchanged)' : 'Enter SMTP password'}
+                placeholder={settings?.smtp_host ? '(unchanged)' : 'Enter SMTP password'}
                 type={showPassword ? 'text' : 'password'}
               />
               <button
