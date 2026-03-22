@@ -266,7 +266,7 @@ function buildEmailHtml(order: ReceiptOrder, items: ReceiptItemRow[], isConfirma
     .map((item) => {
       const customizationHtml = item.customizations.length
         ? `
-          <div style="margin-top:8px; font-size:13px; color:#e6d28c;">
+          <div style="margin-top:8px; font-size:13px; color:#c8b06e; line-height:1.6;">
             ${item.customizations
               .map((customization) =>
                 `${escapeHtml(customization.group_name)}: ${escapeHtml(customization.option_name)}${customization.price > 0 ? ` (+${formatCurrency(customization.price)})` : ""}`,
@@ -278,16 +278,16 @@ function buildEmailHtml(order: ReceiptOrder, items: ReceiptItemRow[], isConfirma
 
       return `
         <tr>
-          <td style="padding:16px 0; border-bottom:1px solid rgba(212,175,55,0.18); vertical-align:top;">
-            <div style="font-size:15px; font-weight:700; color:#f5e6a8;">
+          <td style="padding:16px 0; border-bottom:1px solid rgba(166,124,0,0.22); vertical-align:top;">
+            <div style="font-size:15px; font-weight:700; color:#f0e2b6;">
               ${escapeHtml(item.item_name)}
             </div>
-            <div style="margin-top:4px; font-size:13px; color:#d4af37;">
+            <div style="margin-top:4px; font-size:13px; color:#b68b2c;">
               ${item.quantity} x ${formatCurrency(item.unitTotal)}
             </div>
             ${customizationHtml}
           </td>
-          <td style="padding:16px 0; border-bottom:1px solid rgba(212,175,55,0.18); text-align:right; vertical-align:top; font-size:15px; font-weight:700; color:#d4af37;">
+          <td style="padding:16px 0; border-bottom:1px solid rgba(166,124,0,0.22); text-align:right; vertical-align:top; font-size:15px; font-weight:700; color:#c9971c;">
             ${formatCurrency(item.lineTotal)}
           </td>
         </tr>
@@ -298,8 +298,8 @@ function buildEmailHtml(order: ReceiptOrder, items: ReceiptItemRow[], isConfirma
   const discountHtml = order.discount > 0
     ? `
       <tr>
-        <td style="padding:6px 0; color:#f5e6a8;">Discount</td>
-        <td style="padding:6px 0; text-align:right; color:#d4af37; font-weight:700;">
+        <td style="padding:6px 0; color:#d8c89a;">Discount</td>
+        <td style="padding:6px 0; text-align:right; color:#b68b2c; font-weight:700;">
           -${formatCurrency(toNumber(order.discount))}
         </td>
       </tr>
@@ -309,8 +309,8 @@ function buildEmailHtml(order: ReceiptOrder, items: ReceiptItemRow[], isConfirma
   const deliveryFeeHtml = order.delivery_fee > 0
     ? `
       <tr>
-        <td style="padding:6px 0; color:#f5e6a8;">Delivery Fee</td>
-        <td style="padding:6px 0; text-align:right; color:#f5e6a8; font-weight:600;">
+        <td style="padding:6px 0; color:#d8c89a;">Delivery Fee</td>
+        <td style="padding:6px 0; text-align:right; color:#d8c89a; font-weight:600;">
           ${formatCurrency(toNumber(order.delivery_fee))}
         </td>
       </tr>
@@ -320,91 +320,109 @@ function buildEmailHtml(order: ReceiptOrder, items: ReceiptItemRow[], isConfirma
   return `
     <!doctype html>
     <html lang="en">
-      <body style="margin:0; background:#3f4f24; font-family:Arial, Helvetica, sans-serif; color:#f5e6a8;">
-        <div style="max-width:680px; margin:0 auto; padding:32px 16px;">
-          <div style="background:#4b5d2a; border-radius:20px; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,0.22); border:1px solid rgba(212,175,55,0.18);">
-            <div style="background:linear-gradient(135deg, #556b2f, #6b7f36); padding:32px; color:#ffffff; text-align:center;">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>${escapeHtml(copy.title)}</title>
+      </head>
+      <body style="margin:0; padding:0; background:#2f3a1f; font-family:Arial, Helvetica, sans-serif; color:#e8d9a8;">
+        <div style="width:100%; background:#2f3a1f; padding:32px 12px;">
+          <div style="max-width:680px; margin:0 auto; background:#3a4726; border:1px solid rgba(166,124,0,0.18); border-radius:22px; overflow:hidden; box-shadow:0 14px 40px rgba(0,0,0,0.28);">
+
+            <div style="background:linear-gradient(180deg, #46562d 0%, #384624 100%); padding:34px 28px 28px; text-align:center; border-bottom:1px solid rgba(166,124,0,0.18);">
               <img
                 src="${logoUrl}"
                 alt="The Supreme Waffle"
-                style="max-width:160px; width:100%; height:auto; display:block; margin:0 auto 14px;"
+                style="display:block; width:150px; max-width:100%; height:auto; margin:0 auto 16px;"
               />
-              <div style="font-size:13px; letter-spacing:0.08em; text-transform:uppercase; color:#f3d98b;">
+              <div style="font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#b68b2c; font-weight:700;">
                 The Supreme Waffle
               </div>
-              <h1 style="margin:10px 0 0; font-size:28px; line-height:1.2; color:#d4af37;">
+              <h1 style="margin:12px 0 0; font-size:30px; line-height:1.2; color:#d4a437; font-weight:800;">
                 ${escapeHtml(copy.heading)}
               </h1>
-              <p style="margin:10px 0 0; font-size:15px; color:#f5e6a8;">
-                ${escapeHtml(copy.introLead)} <strong>${escapeHtml(order.order_id)}</strong>.
+              <p style="margin:12px auto 0; max-width:520px; font-size:15px; line-height:1.7; color:#e2d1a0;">
+                ${escapeHtml(copy.introLead)} <strong style="color:#d4a437;">${escapeHtml(order.order_id)}</strong>.
               </p>
             </div>
 
-            <div style="padding:28px 32px;">
-              <table style="width:100%; border-collapse:collapse; margin-bottom:24px;">
-                <tr>
-                  <td style="padding:0 0 8px; color:#d4af37; font-size:13px;">Customer</td>
-                  <td style="padding:0 0 8px; text-align:right; font-size:14px; font-weight:700; color:#f5e6a8;">${escapeHtml(order.customer_name)}</td>
-                </tr>
-                <tr>
-                  <td style="padding:0 0 8px; color:#d4af37; font-size:13px;">Phone</td>
-                  <td style="padding:0 0 8px; text-align:right; font-size:14px; font-weight:700; color:#f5e6a8;">${escapeHtml(order.customer_phone)}</td>
-                </tr>
-                <tr>
-                  <td style="padding:0 0 8px; color:#d4af37; font-size:13px;">Order ID</td>
-                  <td style="padding:0 0 8px; text-align:right; font-size:14px; font-weight:700; color:#f5e6a8;">${escapeHtml(order.order_id)}</td>
-                </tr>
-                <tr>
-                  <td style="padding:0 0 8px; color:#d4af37; font-size:13px;">Placed</td>
-                  <td style="padding:0 0 8px; text-align:right; font-size:14px; font-weight:700; color:#f5e6a8;">${escapeHtml(placedAt)}</td>
-                </tr>
-                <tr>
-                  <td style="padding:0 0 8px; color:#d4af37; font-size:13px;">Order Type</td>
-                  <td style="padding:0 0 8px; text-align:right; font-size:14px; font-weight:700; color:#f5e6a8;">${escapeHtml(titleCase(order.order_type))}</td>
-                </tr>
-                <tr>
-                  <td style="padding:0 0 8px; color:#d4af37; font-size:13px;">Service Mode</td>
-                  <td style="padding:0 0 8px; text-align:right; font-size:14px; font-weight:700; color:#f5e6a8;">${escapeHtml(serviceMode)}</td>
-                </tr>
-                <tr>
-                  <td style="padding:0; color:#d4af37; font-size:13px;">Payment</td>
-                  <td style="padding:0; text-align:right; font-size:14px; font-weight:700; color:#f5e6a8;">
-                    ${escapeHtml(paymentLabel)} (${escapeHtml(titleCase(order.payment_status))})
-                  </td>
-                </tr>
-              </table>
+            <div style="padding:28px;">
+              <div style="background:#313d20; border:1px solid rgba(166,124,0,0.16); border-radius:16px; padding:18px 18px 10px;">
+                <table style="width:100%; border-collapse:collapse;">
+                  <tr>
+                    <td style="padding:0 0 10px; color:#b68b2c; font-size:13px;">Customer</td>
+                    <td style="padding:0 0 10px; text-align:right; font-size:14px; font-weight:700; color:#f0e2b6;">${escapeHtml(order.customer_name)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 0 10px; color:#b68b2c; font-size:13px;">Phone</td>
+                    <td style="padding:0 0 10px; text-align:right; font-size:14px; font-weight:700; color:#f0e2b6;">${escapeHtml(order.customer_phone)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 0 10px; color:#b68b2c; font-size:13px;">Order ID</td>
+                    <td style="padding:0 0 10px; text-align:right; font-size:14px; font-weight:700; color:#f0e2b6;">${escapeHtml(order.order_id)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 0 10px; color:#b68b2c; font-size:13px;">Placed</td>
+                    <td style="padding:0 0 10px; text-align:right; font-size:14px; font-weight:700; color:#f0e2b6;">${escapeHtml(placedAt)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 0 10px; color:#b68b2c; font-size:13px;">Order Type</td>
+                    <td style="padding:0 0 10px; text-align:right; font-size:14px; font-weight:700; color:#f0e2b6;">${escapeHtml(titleCase(order.order_type))}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 0 10px; color:#b68b2c; font-size:13px;">Service Mode</td>
+                    <td style="padding:0 0 10px; text-align:right; font-size:14px; font-weight:700; color:#f0e2b6;">${escapeHtml(serviceMode)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0; color:#b68b2c; font-size:13px;">Payment</td>
+                    <td style="padding:0; text-align:right; font-size:14px; font-weight:700; color:#f0e2b6;">
+                      ${escapeHtml(paymentLabel)} (${escapeHtml(titleCase(order.payment_status))})
+                    </td>
+                  </tr>
+                </table>
+              </div>
 
-              <div style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#d4af37; margin-bottom:12px;">
+              <div style="margin-top:24px; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.14em; color:#b68b2c;">
                 Items
               </div>
 
-              <table style="width:100%; border-collapse:collapse;">
-                ${itemRowsHtml}
-              </table>
+              <div style="margin-top:10px; background:#313d20; border:1px solid rgba(166,124,0,0.16); border-radius:16px; padding:0 18px;">
+                <table style="width:100%; border-collapse:collapse;">
+                  ${itemRowsHtml}
+                </table>
+              </div>
 
-              <table style="width:100%; border-collapse:collapse; margin-top:24px;">
-                <tr>
-                  <td style="padding:6px 0; color:#f5e6a8;">Subtotal</td>
-                  <td style="padding:6px 0; text-align:right; color:#f5e6a8; font-weight:600;">
-                    ${formatCurrency(toNumber(order.subtotal))}
-                  </td>
-                </tr>
-                ${discountHtml}
-                ${deliveryFeeHtml}
-                <tr>
-                  <td style="padding:14px 0 0; border-top:1px solid rgba(212,175,55,0.18); font-size:16px; font-weight:800; color:#d4af37;">
-                    Total
-                  </td>
-                  <td style="padding:14px 0 0; border-top:1px solid rgba(212,175,55,0.18); text-align:right; font-size:18px; font-weight:800; color:#d4af37;">
-                    ${formatCurrency(toNumber(order.total))}
-                  </td>
-                </tr>
-              </table>
+              <div style="margin-top:24px; background:#313d20; border:1px solid rgba(166,124,0,0.16); border-radius:16px; padding:18px;">
+                <table style="width:100%; border-collapse:collapse;">
+                  <tr>
+                    <td style="padding:6px 0; color:#d8c89a;">Subtotal</td>
+                    <td style="padding:6px 0; text-align:right; color:#d8c89a; font-weight:600;">
+                      ${formatCurrency(toNumber(order.subtotal))}
+                    </td>
+                  </tr>
+                  ${discountHtml}
+                  ${deliveryFeeHtml}
+                  <tr>
+                    <td style="padding:14px 0 0; border-top:1px solid rgba(166,124,0,0.22); font-size:18px; font-weight:800; color:#d4a437;">
+                      Total
+                    </td>
+                    <td style="padding:14px 0 0; border-top:1px solid rgba(166,124,0,0.22); text-align:right; font-size:20px; font-weight:800; color:#d4a437;">
+                      ${formatCurrency(toNumber(order.total))}
+                    </td>
+                  </tr>
+                </table>
+              </div>
             </div>
 
-            <div style="padding:0 32px 28px; text-align:center; color:#cbb878; font-size:12px;">
-              © The Supreme Waffle
+            <div style="padding:0 28px 28px; text-align:center;">
+              <div style="font-size:13px; line-height:1.7; color:#c8b06e;">
+                Thank you for ordering with <span style="color:#d4a437; font-weight:700;">The Supreme Waffle</span>.
+              </div>
+              <div style="margin-top:8px; font-size:11px; line-height:1.6; color:#9f8a56;">
+                This is an automated email receipt for your order.
+              </div>
             </div>
+
           </div>
         </div>
       </body>
