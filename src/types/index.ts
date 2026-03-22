@@ -54,6 +54,12 @@ export interface SiteSettings {
   closure_title: string;
   closure_message: string;
   reopening_text: string;
+  smtp_host: string;
+  smtp_port: number;
+  smtp_user: string;
+  smtp_pass: string;
+  smtp_from_email: string;
+  smtp_from_name: string;
   created_at: string;
   updated_at: string;
 }

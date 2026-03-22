@@ -9,6 +9,15 @@ const corsHeaders = {
     "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+interface SmtpConfig {
+  smtp_host: string;
+  smtp_port: number;
+  smtp_user: string;
+  smtp_pass: string;
+  smtp_from_email: string;
+  smtp_from_name: string;
+}
+
 interface ReceiptOrder {
   id: string;
   order_id: string;
@@ -446,21 +455,34 @@ function buildEmailText(order: ReceiptOrder, items: ReceiptItemRow[]) {
   ].join("\n");
 }
 
-function getSmtpTransport() {
-  const host = Deno.env.get("SMTP_HOST")?.trim();
-  const port = parseInt(Deno.env.get("SMTP_PORT") || "587", 10);
-  const user = Deno.env.get("SMTP_USER")?.trim();
-  const pass = Deno.env.get("SMTP_PASS")?.trim();
+async function loadSmtpConfig(
+  adminClient: ReturnType<typeof createClient>,
+): Promise<SmtpConfig | null> {
+  const { data, error } = await adminClient
+    .from("site_settings")
+    .select("smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from_email, smtp_from_name")
+    .eq("id", true)
+    .maybeSingle();
 
-  if (!host || !user || !pass) {
+  if (error || !data) {
+    console.error("Failed to load SMTP config from site_settings:", error);
     return null;
   }
 
+  const config = data as SmtpConfig;
+  if (!config.smtp_host || !config.smtp_user || !config.smtp_pass) {
+    return null;
+  }
+
+  return config;
+}
+
+function createSmtpTransport(config: SmtpConfig) {
   return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: { user, pass },
+    host: config.smtp_host,
+    port: config.smtp_port || 587,
+    secure: config.smtp_port === 465,
+    auth: { user: config.smtp_user, pass: config.smtp_pass },
     tls: { rejectUnauthorized: false },
   });
 }
@@ -507,18 +529,18 @@ Deno.serve(async (req: Request) => {
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    const smtpFromEmail = Deno.env.get("SMTP_FROM_EMAIL")?.trim() ||
-      Deno.env.get("SMTP_USER")?.trim();
-    const smtpFromName = Deno.env.get("SMTP_FROM_NAME")?.trim() || "The Supreme Waffle";
+    const adminClient = createClient(supabaseUrl, serviceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
 
-    const transport = getSmtpTransport();
+    const smtpConfig = await loadSmtpConfig(adminClient);
 
-    if (!transport || !smtpFromEmail) {
+    if (!smtpConfig) {
       return new Response(
         JSON.stringify({
           success: true,
           skipped: true,
-          reason: "SMTP is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS.",
+          reason: "SMTP is not configured. Set SMTP settings in the admin panel under Website settings.",
         }),
         {
           status: 200,
@@ -527,9 +549,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const adminClient = createClient(supabaseUrl, serviceKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
     const authToken = authHeader.startsWith("Bearer ")
       ? authHeader.slice("Bearer ".length).trim()
       : authHeader.trim();
@@ -632,8 +651,12 @@ Deno.serve(async (req: Request) => {
     const items = (itemsData ?? []) as ReceiptItemRow[];
     const copy = receiptEmailCopy(order);
 
+    const transport = createSmtpTransport(smtpConfig);
+    const fromEmail = smtpConfig.smtp_from_email || smtpConfig.smtp_user;
+    const fromName = smtpConfig.smtp_from_name || "The Supreme Waffle";
+
     const info = await transport.sendMail({
-      from: `${smtpFromName} <${smtpFromEmail}>`,
+      from: `${fromName} <${fromEmail}>`,
       to: recipient,
       subject: copy.subject,
       html: buildEmailHtml(order, items),

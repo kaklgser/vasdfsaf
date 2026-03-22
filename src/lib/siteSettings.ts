@@ -9,6 +9,12 @@ export const defaultOpenSiteSettings: SiteSettings = {
   closure_title: 'We are currently closed',
   closure_message: 'Ordering is temporarily unavailable right now.',
   reopening_text: 'We will open at 11:00 AM',
+  smtp_host: '',
+  smtp_port: 587,
+  smtp_user: '',
+  smtp_pass: '',
+  smtp_from_email: '',
+  smtp_from_name: 'The Supreme Waffle',
   created_at: new Date(0).toISOString(),
   updated_at: new Date(0).toISOString(),
 };
