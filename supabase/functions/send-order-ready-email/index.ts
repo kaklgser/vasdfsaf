@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import nodemailer from "npm:nodemailer@6.9.16";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -205,6 +206,25 @@ function buildEmailText(order: ReadyOrder) {
   ].join("\n");
 }
 
+function getSmtpTransport() {
+  const host = Deno.env.get("SMTP_HOST")?.trim();
+  const port = parseInt(Deno.env.get("SMTP_PORT") || "587", 10);
+  const user = Deno.env.get("SMTP_USER")?.trim();
+  const pass = Deno.env.get("SMTP_PASS")?.trim();
+
+  if (!host || !user || !pass) {
+    return null;
+  }
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false },
+  });
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -246,21 +266,22 @@ Deno.serve(async (req: Request) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const resendApiKey = Deno.env.get("RESEND_API_KEY")?.trim();
-    const fromEmail = Deno.env.get("ORDER_RECEIPT_FROM_EMAIL")?.trim();
-    const fromName = Deno.env.get("ORDER_RECEIPT_FROM_NAME")?.trim() ||
-      "The Supreme Waffle";
-    const replyTo = Deno.env.get("ORDER_RECEIPT_REPLY_TO_EMAIL")?.trim();
 
-    if (!resendApiKey || !fromEmail) {
+    const smtpFromEmail = Deno.env.get("SMTP_FROM_EMAIL")?.trim() ||
+      Deno.env.get("SMTP_USER")?.trim();
+    const smtpFromName = Deno.env.get("SMTP_FROM_NAME")?.trim() || "The Supreme Waffle";
+
+    const transport = getSmtpTransport();
+
+    if (!transport || !smtpFromEmail) {
       return new Response(
         JSON.stringify({
-          success: false,
-          error:
-            "Order email is not configured. Set RESEND_API_KEY and ORDER_RECEIPT_FROM_EMAIL.",
+          success: true,
+          skipped: true,
+          reason: "SMTP is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS.",
         }),
         {
-          status: 500,
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
@@ -357,55 +378,26 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const from = fromEmail.includes("<")
-      ? fromEmail
-      : `${fromName} <${fromEmail}>`;
-
-    const emailPayload: Record<string, unknown> = {
-      from,
-      to: [recipient],
+    const info = await transport.sendMail({
+      from: `${smtpFromName} <${smtpFromEmail}>`,
+      to: recipient,
       subject: `${readyHeadline(order)} - ${order.order_id}`,
       html: buildEmailHtml(order),
       text: buildEmailText(order),
-    };
-
-    if (replyTo) {
-      emailPayload.reply_to = replyTo;
-    }
-
-    const resendResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
-        "Idempotency-Key": `order-ready-${order.order_id}`,
-      },
-      body: JSON.stringify(emailPayload),
     });
-
-    const resendData = await resendResponse.json();
-
-    if (!resendResponse.ok) {
-      throw new Error(
-        typeof resendData?.message === "string"
-          ? resendData.message
-          : typeof resendData?.error?.message === "string"
-            ? resendData.error.message
-            : "Failed to send order email",
-      );
-    }
 
     return new Response(
       JSON.stringify({
         success: true,
         recipient,
-        emailId: resendData?.id ?? null,
+        messageId: info?.messageId ?? null,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       },
     );
   } catch (error) {
+    console.error("send-order-ready-email error:", error);
     return new Response(
       JSON.stringify({
         success: false,
