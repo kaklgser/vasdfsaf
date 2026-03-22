@@ -230,6 +230,14 @@ async function loadSmtpConfig(
   }
 
   const config = data as SmtpConfig;
+
+  if (!config.smtp_pass) {
+    const envPass = Deno.env.get("SMTP_PASS") || "";
+    if (envPass) {
+      config.smtp_pass = envPass;
+    }
+  }
+
   if (!config.smtp_host || !config.smtp_user || !config.smtp_pass) {
     return null;
   }
